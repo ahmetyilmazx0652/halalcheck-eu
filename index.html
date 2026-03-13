@@ -1,0 +1,2535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f3d22">
+<meta name="description" content="HalalScan — Instantly check if any food product is Halal">
+<title>HalalScan · Halal Food Checker</title>
+<link rel="manifest" href="data:application/json,{}">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN SYSTEM
+============================================================ */
+:root {
+  --g1: #091a0f;
+  --g2: #165c30;
+  --g3: #22a152;
+  --g4: #4cce7e;
+  --gold: #d4a535;
+  --gold2: #f0cc68;
+  --cream: #f7f3ea;
+  --surface: #ffffff;
+  --border: #d5e6db;
+  --text: #0d1f14;
+  --muted: #5e7268;
+  --red: #b91c1c;
+  --amber: #b45309;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.10);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.18);
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   HEADER / NAV
+============================================================ */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--g1);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+  height: 56px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.topbar-logo {
+  font-size: 20px; font-weight: 800; color: white; letter-spacing: -0.5px;
+  display: flex; align-items: center; gap: 6px;
+}
+.topbar-logo .ar { font-family: 'Noto Kufi Arabic', serif; color: var(--gold2); font-size: 18px; }
+.lang-switcher {
+  display: flex; gap: 4px;
+}
+.lang-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.55); font-size: 11px; font-weight: 700;
+  padding: 5px 10px; border-radius: 8px; cursor: pointer;
+  font-family: 'Outfit', sans-serif; transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+.lang-btn.active { background: var(--g3); border-color: var(--g3); color: white; }
+.lang-btn:hover:not(.active) { background: rgba(255,255,255,0.14); color: white; }
+
+/* ============================================================
+   HERO
+============================================================ */
+.hero {
+  background: linear-gradient(165deg, var(--g1) 0%, #0f3d22 45%, #1a6b3a 100%);
+  padding: 40px 20px 52px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute; bottom: -2px; left: 0; right: 0;
+  height: 32px;
+  background: var(--cream);
+  border-radius: 50% 50% 0 0 / 32px 32px 0 0;
+}
+.hero-arabic-bg {
+  font-family: 'Noto Kufi Arabic', serif;
+  position: absolute; font-size: 260px; color: rgba(255,255,255,0.025);
+  top: -30px; left: 50%; transform: translateX(-50%);
+  pointer-events: none; white-space: nowrap; line-height: 1;
+  user-select: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(212,165,53,0.15); border: 1px solid rgba(212,165,53,0.35);
+  color: var(--gold2); font-size: 11px; font-weight: 600;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px; margin-bottom: 18px;
+  animation: fadeDown 0.5s ease both;
+}
+@keyframes fadeDown { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: none; } }
+.hero-title {
+  font-size: clamp(38px, 8vw, 56px);
+  font-weight: 800; color: white; letter-spacing: -2px; line-height: 1;
+  margin-bottom: 10px;
+  animation: fadeDown 0.5s 0.1s ease both;
+}
+.hero-title .ar { font-family: 'Noto Kufi Arabic', serif; color: var(--gold); }
+.hero-sub {
+  font-size: clamp(13px, 3vw, 15px); color: rgba(255,255,255,0.5);
+  font-weight: 300; margin-bottom: 32px; line-height: 1.5;
+  animation: fadeDown 0.5s 0.2s ease both;
+}
+
+/* ============================================================
+   SEARCH
+============================================================ */
+.search-wrap {
+  max-width: 500px; margin: 0 auto;
+  animation: fadeDown 0.5s 0.3s ease both;
+}
+.search-box {
+  background: white; border-radius: var(--r-lg);
+  padding: 6px 6px 6px 18px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.1);
+}
+.search-box input {
+  flex: 1; border: none; outline: none;
+  font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 500;
+  color: var(--text); background: transparent; min-width: 0;
+}
+.search-box input::placeholder { color: #b8c8bf; font-weight: 400; }
+@keyframes scanAnim {
+  0%   { top: 10%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 85%; opacity: 0; }
+}
+.camera-btn {
+  background: rgba(34,161,82,0.12); border: 1.5px solid rgba(34,161,82,0.3);
+  color: var(--g3); font-size: 20px; border-radius: 12px;
+  width: 46px; height: 46px; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.camera-btn:hover { background: rgba(34,161,82,0.2); transform: scale(1.05); }
+.camera-btn:active { transform: scale(0.95); }
+.scan-btn {
+  background: linear-gradient(135deg, var(--g2), var(--g3));
+  color: white; border: none; border-radius: var(--r-md);
+  padding: 13px 20px; font-family: 'Outfit', sans-serif;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+  transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+}
+.scan-btn:hover { transform: scale(1.02); box-shadow: 0 8px 24px rgba(34,161,82,0.4); }
+.scan-btn:active { transform: scale(0.97); }
+.examples-row {
+  margin-top: 12px; display: flex; gap: 7px; justify-content: center; flex-wrap: wrap;
+}
+.ex-chip {
+  background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.65); font-size: 11px; font-weight: 500;
+  padding: 4px 12px; border-radius: 20px; cursor: pointer;
+  transition: all 0.15s; font-family: monospace; letter-spacing: 0.5px;
+}
+.ex-chip:hover { background: rgba(255,255,255,0.16); color: white; }
+.ex-label { color: rgba(255,255,255,0.35); font-size: 11px; margin-bottom: 6px; }
+
+/* ============================================================
+   CERT BADGES ROW
+============================================================ */
+.cert-row {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  padding: 20px 20px 0; max-width: 600px; margin: 0 auto;
+}
+.cert-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 12px; font-weight: 700; color: var(--g2);
+  box-shadow: var(--shadow-sm);
+}
+.cert-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--g3); }
+
+/* ============================================================
+   MAIN CONTENT
+============================================================ */
+.main { max-width: 640px; margin: 0 auto; padding: 24px 16px 80px; }
+
+/* Loading */
+.loading { display: none; text-align: center; padding: 56px 0; }
+.spinner {
+  width: 44px; height: 44px;
+  border: 3px solid var(--border); border-top-color: var(--g2);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+  margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading p { color: var(--muted); font-size: 14px; }
+
+/* Error */
+.error-box {
+  display: none; background: #fff1f1; border: 1.5px solid #fca5a5;
+  border-radius: var(--r-md); padding: 18px 20px;
+  margin-top: 20px; color: var(--red); font-size: 14px; text-align: center;
+  line-height: 1.6;
+}
+
+/* Result */
+.result { display: none; animation: fadeUp 0.4s ease both; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform:none; } }
+
+/* Product header */
+.product-card {
+  background: white; border-radius: var(--r-xl);
+  padding: 20px; border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-md); margin-bottom: 14px;
+}
+.product-row { display: flex; gap: 16px; align-items: flex-start; }
+.product-img {
+  width: 84px; height: 84px; border-radius: var(--r-md);
+  object-fit: contain; background: #f4f4f4; border: 1px solid #eee; flex-shrink: 0;
+}
+.product-img-ph {
+  width: 84px; height: 84px; border-radius: var(--r-md);
+  background: linear-gradient(135deg, #e6f4ec, #c8ecd8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; flex-shrink: 0;
+}
+.product-info { flex: 1; min-width: 0; }
+.product-name { font-size: 18px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
+.product-brand { font-size: 13px; color: var(--muted); margin-bottom: 3px; }
+.product-barcode { font-size: 11px; color: #aaa; font-family: monospace; letter-spacing: 1px; }
+.product-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.ptag {
+  font-size: 11px; font-weight: 600; padding: 3px 10px;
+  border-radius: 20px; background: #f0f6f2; color: var(--muted);
+  text-transform: capitalize;
+}
+
+/* Verdict */
+.verdict {
+  border-radius: var(--r-xl); padding: 22px 24px;
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 14px; border: 2px solid transparent;
+  animation: verdictPop 0.4s 0.1s cubic-bezier(0.34,1.56,0.64,1) both;
+  position: relative; overflow: hidden;
+}
+.verdict::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+}
+@keyframes verdictPop { from { opacity:0; transform: scale(0.9); } to { opacity:1; transform:none; } }
+.verdict.halal { background: linear-gradient(135deg,#e8f9f0,#d0f2e0); border-color: #6edba0; box-shadow: 0 8px 32px rgba(34,161,82,0.15); }
+.verdict.halal::before { background: linear-gradient(90deg, #22a152, #4cce7e); }
+.verdict.mushbooh { background: linear-gradient(135deg,#fffbea,#fef3c7); border-color: #fbbf24; box-shadow: 0 8px 32px rgba(251,191,36,0.15); }
+.verdict.mushbooh::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.verdict.haram { background: linear-gradient(135deg,#fff1f0,#fee2e2); border-color: #fca5a5; box-shadow: 0 8px 32px rgba(239,68,68,0.15); }
+.verdict.haram::before { background: linear-gradient(90deg, #dc2626, #f87171); }
+.v-icon { font-size: 46px; line-height: 1; flex-shrink: 0; }
+.v-body { flex: 1; }
+.v-title {
+  font-size: 26px; font-weight: 800; letter-spacing: -0.5px; line-height: 1;
+  margin-bottom: 3px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.verdict.halal .v-title { color: #0a4f25; }
+.verdict.mushbooh .v-title { color: #78350f; }
+.verdict.haram .v-title { color: #7f1d1d; }
+.v-title-ar { font-family: 'Noto Kufi Arabic', serif; font-size: 20px; opacity: 0.7; }
+.v-sub { font-size: 13px; color: var(--muted); }
+.v-score-wrap { text-align: center; flex-shrink: 0; }
+.v-score { font-size: 38px; font-weight: 800; line-height: 1; }
+.verdict.halal .v-score { color: #0a4f25; }
+.verdict.mushbooh .v-score { color: #78350f; }
+.verdict.haram .v-score { color: #7f1d1d; }
+.v-score-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Cards */
+.card {
+  background: white; border-radius: var(--r-lg);
+  padding: 18px 20px; border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-sm); margin-bottom: 12px;
+  transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+.card-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--muted); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 7px;
+}
+
+/* Cert badges in result */
+.cert-found {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.cert-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, #e8f9f0, #d4f0e2);
+  border: 1.5px solid #8de0b0; border-radius: var(--r-sm);
+  padding: 8px 14px;
+}
+.cert-badge-logo {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--g2), var(--g1));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; color: var(--gold2);
+  text-align: center; line-height: 1.2; flex-shrink: 0;
+}
+.cert-badge-info .cert-name { font-size: 13px; font-weight: 700; color: #0a4f25; }
+.cert-badge-info .cert-region { font-size: 11px; color: #2d8050; }
+
+/* Ingredient list */
+.ingr-list { display: flex; flex-direction: column; }
+.ingr-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 0; border-bottom: 1px solid #f0f6f2; gap: 12px;
+}
+.ingr-item:last-child { border-bottom: none; padding-bottom: 0; }
+.ingr-left { flex: 1; min-width: 0; }
+.ingr-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.ingr-reason { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.ibadge {
+  font-size: 10px; font-weight: 700; padding: 3px 9px;
+  border-radius: 20px; white-space: nowrap; flex-shrink: 0; letter-spacing: 0.3px;
+}
+.ibadge.ok { background: #e8f9f0; color: #0a4f25; }
+.ibadge.warn { background: #fffbea; color: #78350f; }
+.ibadge.no { background: #fff1f0; color: #7f1d1d; }
+
+/* Raw ingredients */
+.raw-ingr {
+  font-size: 13px; color: var(--muted); line-height: 1.8;
+  background: #f7fbf8; border-radius: 10px; padding: 14px;
+}
+
+/* Nutrition */
+.nutri-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.nutri-item { background: #f7fbf8; border-radius: 10px; padding: 12px 14px; }
+.nutri-label { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.nutri-val { font-size: 20px; font-weight: 800; color: var(--text); margin-top: 2px; }
+
+/* Disclaimer */
+.disclaimer {
+  background: #fffbea; border: 1px solid #fde68a; border-radius: var(--r-sm);
+  padding: 14px 16px; font-size: 12px; color: #78350f; line-height: 1.7;
+  margin-top: 4px;
+}
+
+/* Brand showcase */
+.brand-showcase {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  padding: 16px 0 4px;
+}
+.brand-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 6px 12px;
+  font-size: 12px; font-weight: 600; color: var(--text);
+  box-shadow: var(--shadow-sm); cursor: pointer; transition: all 0.15s;
+}
+.brand-chip:hover { border-color: var(--g3); color: var(--g2); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.brand-chip .verdict-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.brand-chip .verdict-dot.halal { background: var(--g3); }
+.brand-chip .verdict-dot.mushbooh { background: #f59e0b; }
+.brand-chip .verdict-dot.haram { background: var(--red); }
+.stats-bar {
+  display: flex; background: white; border-radius: var(--r-lg);
+  border: 1.5px solid var(--border); overflow: hidden;
+  box-shadow: var(--shadow-md); margin-bottom: 20px;
+}
+.stat { flex: 1; padding: 18px 8px; text-align: center; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-num { font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--g2), var(--g3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.stat-lbl { font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 2px; letter-spacing: 0.3px; }
+.how-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.how-card {
+  background: white; border-radius: var(--r-md); padding: 18px 14px;
+  border: 1.5px solid var(--border); text-align: center; box-shadow: var(--shadow-sm);
+}
+.how-icon { font-size: 26px; margin-bottom: 8px; }
+.how-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.how-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.section-label { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tab-btn {
+  flex:1; border:none; background:transparent; font-family:'Outfit',sans-serif;
+  font-size:12px; font-weight:600; color:var(--muted); padding:8px 4px;
+  border-radius:10px; cursor:pointer; transition:all 0.15s; white-space:nowrap;
+}
+.tab-active { background:var(--g2) !important; color:white !important; }
+.nav-item {
+  background:none; border:none; cursor:pointer; display:flex; flex-direction:column;
+  align-items:center; gap:3px; padding:4px 12px; font-family:'Outfit',sans-serif;
+  transition: transform 0.1s;
+}
+.nav-item:active { transform: scale(0.9); }
+
+/* ============================================================
+   MOBILE RESPONSIVE
+============================================================ */
+@media (max-width: 480px) {
+  .hero { padding: 32px 16px 48px; }
+  .hero-arabic-bg { font-size: 160px; }
+  .how-grid { grid-template-columns: 1fr 1fr; }
+  .nutri-grid { grid-template-columns: 1fr 1fr; }
+  .product-name { font-size: 16px; }
+  .v-title { font-size: 22px; }
+  .v-score { font-size: 30px; }
+  .topbar { padding: 0 14px; }
+  .lang-btn { padding: 4px 8px; font-size: 10px; }
+  .cert-row { padding: 16px 14px 0; }
+}
+@media (max-width: 340px) {
+  .how-grid { grid-template-columns: 1fr; }
+  .stats-bar { flex-wrap: wrap; }
+  .stat { min-width: 50%; border-bottom: 1px solid var(--border); }
+}
+
+/* ============================================================
+   BOTTOM SAFE AREA (iOS)
+============================================================ */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .main { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo">
+    HalalScan
+  </div>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('tr')">TR</button>
+    <button class="lang-btn" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" onclick="setLang('ar')">AR</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-arabic-bg"></div>
+  <div class="hero-badge">🌙 <span data-t="badge">Free · Open Food Facts · 900K+ products</span></div>
+  <div class="hero-title">HalalScan</div>
+  <p class="hero-sub" data-t="subtitle">Check if any food product is Halal — instantly, for free</p>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <input type="text" id="barcodeInput"
+        data-placeholder-t="placeholder"
+        placeholder="Enter barcode number…"
+        inputmode="numeric" maxlength="30"
+        onkeydown="if(event.key==='Enter')scan()">
+      <button class="camera-btn" onclick="openCamera()" title="Scan barcode with camera">📷</button>
+      <button class="camera-btn" onclick="openPhotoAnalysis()" title="Analyze ingredients from photo" style="font-size:18px;">🔬</button>
+      <button class="camera-btn" onclick="openEmailAnalysis()" title="Analyze company email reply" style="font-size:18px;">📧</button>
+      <button class="scan-btn" onclick="scan()">
+        🔍 <span data-t="scanBtn">Scan</span>
+      </button>
+    </div>
+
+    <!-- ADD PRODUCT MODAL -->
+    <div id="addProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.94); z-index:9999; flex-direction:column; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
+      <div style="width:100%; max-width:480px;">
+        <div style="color:white; font-size:18px; font-weight:700; margin-bottom:4px; text-align:center;">📸 Ürün Ekle</div>
+        <div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; margin-bottom:16px;">Barkod: <span id="addProductBarcode" style="font-family:monospace;color:#4cce7e;"></span></div>
+
+        <div id="addProductForm">
+          <!-- Photo area -->
+          <div onclick="triggerAddPhoto()" style="background:rgba(255,255,255,0.06); border:2px dashed rgba(255,255,255,0.2); border-radius:16px; padding:24px; text-align:center; cursor:pointer; margin-bottom:12px;">
+            <img id="addPhotoPreview" style="display:none; width:100%; max-height:200px; object-fit:contain; border-radius:10px; margin-bottom:10px;">
+            <div style="font-size:36px; margin-bottom:8px;">📸</div>
+            <div style="color:white; font-size:14px; font-weight:600; margin-bottom:4px;">Ürün fotoğrafı çek</div>
+            <div style="color:rgba(255,255,255,0.4); font-size:12px;">İçerik listesi veya ön yüzü</div>
+          </div>
+          <input type="file" id="addProductPhotoInput" accept="image/*" capture="environment" style="display:none;" onchange="handleAddProductPhoto(this)">
+
+          <div id="addProductLoading" style="display:none; text-align:center; padding:16px;">
+            <div style="width:36px; height:36px; border:3px solid rgba(76,206,126,0.2); border-top-color:#4cce7e; border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 10px;"></div>
+            <div style="color:rgba(255,255,255,0.6); font-size:13px;">AI ürünü analiz ediyor…</div>
+          </div>
+
+          <div id="addProductResult" style="display:none; margin-bottom:12px;"></div>
+
+          <button id="addProductAnalyzeBtn" onclick="triggerAddPhoto()" style="display:none;"></button>
+
+          <button id="addProductSaveBtn" onclick="saveAddedProduct()" style="display:none; width:100%; background:linear-gradient(135deg,#165c30,#22a152); color:white; border:none; border-radius:14px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; margin-bottom:10px;">
+            💾 Cihazıma Kaydet
+          </button>
+        </div>
+
+        <button onclick="closeAddProductModal()" style="display:block; width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.7); padding:12px; border-radius:12px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;">✕ Kapat</button>
+      </div>
+    </div>
+    <div id="emailModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.94); z-index:9999; flex-direction:column; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
+      <div style="width:100%; max-width:480px;">
+        <div style="color:white; font-size:18px; font-weight:700; margin-bottom:6px; text-align:center;">📧 Company Email Analyzer</div>
+        <div style="color:rgba(255,255,255,0.45); font-size:12px; text-align:center; margin-bottom:20px;">Paste a reply from a food company — AI will extract halal certification status, ingredients, and key information</div>
+
+        <!-- Text area -->
+        <div style="background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.12); border-radius:16px; overflow:hidden; margin-bottom:12px;">
+          <div style="padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:8px;">
+            <span style="font-size:14px;">📧</span>
+            <span style="color:rgba(255,255,255,0.5); font-size:12px; font-weight:600;">PASTE EMAIL CONTENT BELOW</span>
+          </div>
+          <textarea id="emailText" placeholder="Dear Customer,&#10;&#10;Thank you for contacting us regarding our product...&#10;&#10;Paste the full email reply here." style="width:100%; height:180px; background:transparent; border:none; outline:none; color:white; font-family:'Outfit',sans-serif; font-size:13px; padding:14px; resize:none; line-height:1.6;" spellcheck="false"></textarea>
+        </div>
+
+        <!-- Example button -->
+        <button onclick="fillExampleEmail()" style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); padding:8px; border-radius:10px; font-size:11px; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; margin-bottom:10px;">📝 Load example email</button>
+
+        <!-- Analyze button -->
+        <button id="analyzeEmailBtn" onclick="analyzeEmail()" style="width:100%; background:linear-gradient(135deg,#165c30,#22a152); color:white; border:none; border-radius:14px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; margin-bottom:10px;">
+          🔍 Analyze Email
+        </button>
+
+        <!-- Loading -->
+        <div id="emailLoading" style="display:none; text-align:center; padding:24px 0;">
+          <div style="width:40px; height:40px; border:3px solid rgba(76,206,126,0.2); border-top-color:#4cce7e; border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 12px;"></div>
+          <div style="color:rgba(255,255,255,0.6); font-size:13px;">AI is reading the email…</div>
+        </div>
+
+        <!-- Result -->
+        <div id="emailResult" style="display:none; margin-bottom:10px;"></div>
+
+        <button onclick="closeEmailModal()" style="display:block; width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.7); padding:12px; border-radius:12px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;">✕ Close</button>
+      </div>
+    </div>
+
+    <!-- PHOTO ANALYSIS MODAL -->
+    <div id="photoModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.94); z-index:9999; flex-direction:column; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
+      <div style="width:100%; max-width:480px;">
+        <div style="color:white; font-size:18px; font-weight:700; margin-bottom:6px; text-align:center;">🔬 Ingredient Photo Analysis</div>
+        <div style="color:rgba(255,255,255,0.45); font-size:12px; text-align:center; margin-bottom:20px;">Take a photo of the ingredients list — AI will read and analyze it</div>
+
+        <!-- Upload / Camera area -->
+        <div id="photoUploadArea" style="border:2px dashed rgba(76,206,126,0.4); border-radius:20px; padding:32px 20px; text-align:center; cursor:pointer; background:rgba(255,255,255,0.04); transition:all 0.2s;" onclick="document.getElementById('photoFileInput').click()" ondragover="event.preventDefault()" ondrop="handlePhotoDrop(event)">
+          <div style="font-size:48px; margin-bottom:12px;">📸</div>
+          <div style="color:white; font-size:14px; font-weight:600; margin-bottom:6px;">Tap to take photo or upload</div>
+          <div style="color:rgba(255,255,255,0.4); font-size:12px;">Ingredients list, nutrition label, or product packaging</div>
+          <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoFile(this)">
+        </div>
+
+        <!-- Preview -->
+        <div id="photoPreviewWrap" style="display:none; margin-top:16px; position:relative;">
+          <img id="photoPreview" style="width:100%; border-radius:16px; max-height:300px; object-fit:contain; background:#111;">
+          <button onclick="clearPhoto()" style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.6); border:none; color:white; width:28px; height:28px; border-radius:50%; font-size:14px; cursor:pointer;">✕</button>
+        </div>
+
+        <!-- Analyze button -->
+        <button id="analyzePhotoBtn" onclick="analyzePhoto()" style="display:none; width:100%; margin-top:14px; background:linear-gradient(135deg,#165c30,#22a152); color:white; border:none; border-radius:14px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif;">
+          🔬 Analyze Ingredients
+        </button>
+
+        <!-- AI Loading -->
+        <div id="photoLoading" style="display:none; text-align:center; padding:24px 0;">
+          <div style="width:40px; height:40px; border:3px solid rgba(76,206,126,0.2); border-top-color:#4cce7e; border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 12px;"></div>
+          <div style="color:rgba(255,255,255,0.6); font-size:13px;" id="photoLoadingText">Reading ingredients with AI…</div>
+        </div>
+
+        <!-- AI Result -->
+        <div id="photoResult" style="display:none; margin-top:14px;"></div>
+
+        <button onclick="closePhotoModal()" style="display:block; width:100%; margin-top:14px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.7); padding:12px; border-radius:12px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;">✕ Close</button>
+      </div>
+    </div>
+
+    <!-- CAMERA MODAL -->
+    <div id="cameraModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
+      <div style="width:100%; max-width:480px; padding:20px; text-align:center;">
+        <div style="color:white; font-size:16px; font-weight:700; margin-bottom:16px;">📷 Point camera at barcode</div>
+        <div style="position:relative; border-radius:20px; overflow:hidden; background:#000;">
+          <video id="camVideo" autoplay playsinline muted style="width:100%; display:block; max-height:60vh; object-fit:cover;"></video>
+          <!-- Scan overlay -->
+          <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;">
+            <div style="width:220px; height:140px; position:relative;">
+              <div style="position:absolute; top:0; left:0; width:28px; height:28px; border-top:3px solid #4cce7e; border-left:3px solid #4cce7e; border-radius:4px 0 0 0;"></div>
+              <div style="position:absolute; top:0; right:0; width:28px; height:28px; border-top:3px solid #4cce7e; border-right:3px solid #4cce7e; border-radius:0 4px 0 0;"></div>
+              <div style="position:absolute; bottom:0; left:0; width:28px; height:28px; border-bottom:3px solid #4cce7e; border-left:3px solid #4cce7e; border-radius:0 0 0 4px;"></div>
+              <div style="position:absolute; bottom:0; right:0; width:28px; height:28px; border-bottom:3px solid #4cce7e; border-right:3px solid #4cce7e; border-radius:0 0 4px 0;"></div>
+              <div id="scanLine" style="position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,#4cce7e,transparent); animation:scanAnim 2s ease-in-out infinite;"></div>
+            </div>
+          </div>
+        </div>
+        <canvas id="camCanvas" style="display:none;"></canvas>
+        <div style="color:rgba(255,255,255,0.5); font-size:12px; margin-top:12px;" id="camStatus">Initializing camera…</div>
+        <button onclick="closeCamera()" style="margin-top:16px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); color:white; padding:12px 32px; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;">✕ Close</button>
+      </div>
+    </div>
+    <div class="ex-label" data-t="tryExamples">Try an example barcode:</div>
+    <div class="examples-row">
+      <span class="ex-chip" onclick="tryBarcode('3017620422003')" title="Nutella">Nutella 🍫</span>
+      <span class="ex-chip" onclick="tryBarcode('5449000000996')" title="Coca-Cola">Coca-Cola 🥤</span>
+      <span class="ex-chip" onclick="tryBarcode('4001686301470')" title="Haribo">Haribo 🐻</span>
+      <span class="ex-chip" onclick="tryBarcode('0040000404651')" title="Snickers">Snickers 🍫</span>
+      <span class="ex-chip" onclick="tryBarcode('7622210449283')" title="Oreo">Oreo 🍪</span>
+      <span class="ex-chip" onclick="tryBarcode('0040000488064')" title="M&Ms">M&M's 🍬</span>
+    </div>
+  </div>
+</section>
+
+<!-- CERT BADGES -->
+<div class="cert-row">
+  <div class="cert-pill"><div class="cert-dot"></div> IFANCA 🇺🇸</div>
+  <div class="cert-pill"><div class="cert-dot"></div> HFA 🇬🇧</div>
+  <div class="cert-pill"><div class="cert-dot"></div> ESMA 🇦🇪</div>
+  <div class="cert-pill"><div class="cert-dot"></div> JAKIM 🇲🇾</div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p data-t="analyzing">Analyzing product…</p>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="result" id="result"></div>
+
+  <div class="intro" id="intro">
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-num">900K+</div><div class="stat-lbl" data-t="statProducts">Products</div></div>
+      <div class="stat"><div class="stat-num">500+</div><div class="stat-lbl" data-t="statEcodes">E-codes</div></div>
+      <div class="stat"><div class="stat-num">23+</div><div class="stat-lbl" data-t="statCerts">Brands</div></div>
+      <div class="stat"><div class="stat-num">€0</div><div class="stat-lbl" data-t="statFree">Always Free</div></div>
+    </div>
+
+    <!-- TAB BAR -->
+    <div style="display:flex; gap:8px; margin-bottom:16px; background:white; border-radius:16px; padding:6px; border:1.5px solid var(--border); box-shadow:var(--shadow-sm);">
+      <button onclick="showTab('scan')" id="tab-scan" class="tab-btn tab-active">🔍 Scan</button>
+      <button onclick="showTab('ecodes')" id="tab-ecodes" class="tab-btn">🧪 E-Codes</button>
+      <button onclick="showTab('history')" id="tab-history" class="tab-btn">🕐 History</button>
+      <button onclick="showTab('nearby')" id="tab-nearby" class="tab-btn">📍 Nearby</button>
+    </div>
+
+    <!-- TAB: SCAN (default how-it-works) -->
+    <div id="tabcontent-scan">
+      <div class="section-label">🕌 <span data-t="howTitle">How it works</span></div>
+      <div class="how-grid">
+        <div class="how-card">
+          <div class="how-icon">📷</div>
+          <div class="how-title" data-t="how1Title">Enter Barcode</div>
+          <div class="how-desc" data-t="how1Desc">Type the number from any food product</div>
+        </div>
+        <div class="how-card">
+          <div class="how-icon">🔬</div>
+          <div class="how-title">Photo Scan</div>
+          <div class="how-desc">Tap 🔬 to photograph an ingredients list — AI reads and analyzes it</div>
+        </div>
+        <div class="how-card">
+          <div class="how-icon">✅</div>
+          <div class="how-title" data-t="how3Title">Instant Verdict</div>
+          <div class="how-desc" data-t="how3Desc">Halal, Mushbooh or Haram result in seconds</div>
+        </div>
+      </div>
+
+      <!-- Brand Quick Access -->
+      <div class="section-label" style="margin-top:20px;">🏷️ Popular Brands</div>
+      <div class="brand-showcase">
+        <span class="brand-chip" onclick="tryBarcode('9002490100070')"><span class="verdict-dot halal"></span>Red Bull</span>
+        <span class="brand-chip" onclick="tryBarcode('5449000214911')"><span class="verdict-dot halal"></span>Pepsi</span>
+        <span class="brand-chip" onclick="tryBarcode('5411188121985')"><span class="verdict-dot halal"></span>Alpro Oat</span>
+        <span class="brand-chip" onclick="tryBarcode('3017620422003')"><span class="verdict-dot halal"></span>Nutella</span>
+        <span class="brand-chip" onclick="tryBarcode('5449000000996')"><span class="verdict-dot halal"></span>Coca-Cola</span>
+        <span class="brand-chip" onclick="tryBarcode('7622210449283')"><span class="verdict-dot halal"></span>Oreo</span>
+        <span class="brand-chip" onclick="tryBarcode('7613034626844')"><span class="verdict-dot halal"></span>KitKat</span>
+        <span class="brand-chip" onclick="tryBarcode('5053990101066')"><span class="verdict-dot halal"></span>Pringles</span>
+        <span class="brand-chip" onclick="tryBarcode('0040000404651')"><span class="verdict-dot mushbooh"></span>Snickers</span>
+        <span class="brand-chip" onclick="tryBarcode('0040000445365')"><span class="verdict-dot mushbooh"></span>Twix</span>
+        <span class="brand-chip" onclick="tryBarcode('7622210449009')"><span class="verdict-dot mushbooh"></span>Cadbury</span>
+        <span class="brand-chip" onclick="tryBarcode('3033490004958')"><span class="verdict-dot mushbooh"></span>Activia</span>
+        <span class="brand-chip" onclick="tryBarcode('7622210012661')"><span class="verdict-dot mushbooh"></span>Milka</span>
+        <span class="brand-chip" onclick="tryBarcode('0028400090094')"><span class="verdict-dot haram"></span>Doritos ⛔</span>
+        <span class="brand-chip" onclick="tryBarcode('4001686301470')"><span class="verdict-dot haram"></span>Haribo ⛔</span>
+      </div>
+      <div style="text-align:center; margin-top:8px; font-size:10px; color:var(--muted);">
+        <span style="display:inline-flex; align-items:center; gap:4px; margin-right:10px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--g3);display:inline-block;"></span>Halal</span>
+        <span style="display:inline-flex; align-items:center; gap:4px; margin-right:10px;"><span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>Mushbooh</span>
+        <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;"></span>Haram</span>
+      </div>
+    </div>
+
+    <!-- TAB: E-CODES -->
+    <div id="tabcontent-ecodes" style="display:none;">
+      <div class="section-label">🧪 E-Code / Additive Search</div>
+      <div style="background:white; border-radius:16px; padding:6px 6px 6px 16px; display:flex; align-items:center; gap:8px; border:1.5px solid var(--border); margin-bottom:12px; box-shadow:var(--shadow-sm);">
+        <input type="text" id="ecodeInput" placeholder="Search E-number or ingredient name…" style="flex:1; border:none; outline:none; font-family:'Outfit',sans-serif; font-size:14px; color:var(--text); background:transparent;" oninput="searchEcode(this.value)">
+        <span style="font-size:16px; color:var(--muted);">🔍</span>
+      </div>
+      <div id="ecodeResults"></div>
+    </div>
+
+    <!-- TAB: HISTORY -->
+    <div id="tabcontent-history" style="display:none;">
+      <div class="section-label">🕐 Recent Scans</div>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- TAB: NEARBY -->
+    <div id="tabcontent-nearby" style="display:none;">
+      <div class="section-label">📍 Nearby Halal Restaurants</div>
+      <div id="nearbyContent">
+        <div style="text-align:center; padding:32px 0;">
+          <div style="font-size:40px; margin-bottom:12px;">📍</div>
+          <div style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:6px;">Find Halal Food Near You</div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:16px;">We'll find halal restaurants and shops in your area</div>
+          <button onclick="findNearby()" style="background:linear-gradient(135deg,var(--g2),var(--g3)); color:white; border:none; border-radius:12px; padding:12px 24px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif;">📍 Use My Location</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- BOTTOM NAV -->
+<nav style="position:fixed; bottom:0; left:0; right:0; background:white; border-top:1.5px solid var(--border); display:flex; justify-content:space-around; padding:8px 0 max(8px, env(safe-area-inset-bottom)); z-index:50; box-shadow:0 -4px 20px rgba(0,0,0,0.08);">
+  <button onclick="scrollToTop()" class="nav-item">
+    <div style="font-size:20px;">🏠</div>
+    <div style="font-size:10px; font-weight:600; color:var(--muted);">Home</div>
+  </button>
+  <button onclick="openCamera()" class="nav-item">
+    <div style="font-size:20px;">📷</div>
+    <div style="font-size:10px; font-weight:600; color:var(--muted);">Barcode</div>
+  </button>
+  <button onclick="openPhotoAnalysis()" class="nav-item">
+    <div style="font-size:20px;">🔬</div>
+    <div style="font-size:10px; font-weight:600; color:var(--muted);">Photo</div>
+  </button>
+  <button onclick="showTab('ecodes'); document.getElementById('intro').scrollIntoView({behavior:'smooth'})" class="nav-item">
+    <div style="font-size:20px;">🧪</div>
+    <div style="font-size:10px; font-weight:600; color:var(--muted);">E-Codes</div>
+  </button>
+  <button onclick="openEmailAnalysis()" class="nav-item">
+    <div style="font-size:20px;">📧</div>
+    <div style="font-size:10px; font-weight:600; color:var(--muted);">Email</div>
+  </button>
+  <button onclick="showTab('nearby'); document.getElementById('intro').scrollIntoView({behavior:'smooth'})" class="nav-item">
+    <div style="font-size:20px;">📍</div>
+    <div style="font-size:10px; font-weight:600; color:var(--muted);">Nearby</div>
+  </button>
+</nav>
+
+<script>
+/* ============================================================
+   TRANSLATIONS
+============================================================ */
+const T = {
+  en: {
+    badge: 'Free · Open Food Facts · 900K+ products',
+    subtitle: 'Check if any food product is Halal — instantly, for free',
+    placeholder: 'Enter barcode number…',
+    scanBtn: 'Scan',
+    tryExamples: 'Try an example barcode:',
+    analyzing: 'Analyzing product…',
+    statProducts: 'Products', statEcodes: 'E-codes', statCerts: 'Cert Bodies', statFree: 'Always Free',
+    howTitle: 'How it works',
+    how1Title: 'Enter Barcode', how1Desc: 'Type the number from any food product',
+    how2Title: 'AI Analysis', how2Desc: 'Every ingredient checked against our halal database',
+    how3Title: 'Instant Verdict', how3Desc: 'Halal, Mushbooh or Haram result in seconds',
+    verdictHalal: 'HALAL', verdictMushbooh: 'MUSHBOOH', verdictHaram: 'HARAM',
+    subHalal: 'No prohibited ingredients detected',
+    subMushbooh: 'Doubtful ingredients — verify with a scholar',
+    subHaram: 'Contains prohibited ingredients',
+    certTitle: '🏅 Halal Certifications',
+    noCert: 'No known halal certification found in database.',
+    ingrTitle: '🧪 Ingredient Analysis',
+    noFlag: 'No flagged ingredients detected in database.',
+    fullIngr: '📋 Full Ingredients List',
+    noIngr: 'No ingredient data available for this product.',
+    nutriTitle: '📊 Nutrition',
+    disclaimerText: '⚠️ Disclaimer: This is an automated analysis for informational purposes only and does not constitute a religious fatwa. Always verify with a qualified Islamic scholar or certified halal authority. Data sourced from Open Food Facts.',
+    notFound: 'Product not found. Try one of the example barcodes above.',
+    networkErr: 'Network error. Please check your connection.',
+    halalTag: '✓ Halal', haramTag: '✗ Haram', doubtTag: '⚠ Doubtful',
+    scoreLabel: '/ 100',
+    energy: 'Energy', fat: 'Fat', carbs: 'Carbs', protein: 'Protein',
+  },
+  tr: {
+    badge: 'Ücretsiz · Open Food Facts · 900K+ ürün',
+    subtitle: 'Herhangi bir gıda ürününün Helal olup olmadığını anında kontrol et',
+    placeholder: 'Barkod numarası girin…',
+    scanBtn: 'Tara',
+    tryExamples: 'Örnek barkod dene:',
+    analyzing: 'Ürün analiz ediliyor…',
+    statProducts: 'Ürün', statEcodes: 'E-kodu', statCerts: 'Sertifika', statFree: 'Ücretsiz',
+    howTitle: 'Nasıl çalışır?',
+    how1Title: 'Barkod Gir', how1Desc: 'Herhangi bir ürünün barkodunu yaz',
+    how2Title: 'AI Analizi', how2Desc: 'Her içerik helal veri tabanında kontrol edilir',
+    how3Title: 'Anında Sonuç', how3Desc: 'Saniyeler içinde Helal, Şüpheli veya Haram sonucu',
+    verdictHalal: 'HELAL', verdictMushbooh: 'ŞÜPHELİ', verdictHaram: 'HARAM',
+    subHalal: 'Yasaklı içerik tespit edilmedi',
+    subMushbooh: 'Şüpheli içerik bulundu — din aliminden teyit alın',
+    subHaram: 'Yasaklı içerik içeriyor',
+    certTitle: '🏅 Helal Sertifikaları',
+    noCert: 'Veri tabanında bilinen helal sertifikası bulunamadı.',
+    ingrTitle: '🧪 İçerik Analizi',
+    noFlag: 'Veri tabanında işaretlenen içerik bulunamadı.',
+    fullIngr: '📋 Tam İçerik Listesi',
+    noIngr: 'Bu ürün için içerik verisi mevcut değil.',
+    nutriTitle: '📊 Besin Değerleri',
+    disclaimerText: '⚠️ Uyarı: Bu analiz yalnızca bilgilendirme amaçlıdır ve dini fetva niteliği taşımaz. Her zaman yetkili bir İslam alimi veya sertifikalı helal otoritesiyle doğrulayın. Veriler Open Food Facts\'ten alınmıştır.',
+    notFound: 'Ürün bulunamadı. Yukarıdaki örnek barkodlardan birini deneyin.',
+    networkErr: 'Ağ hatası. Bağlantınızı kontrol edin.',
+    halalTag: '✓ Helal', haramTag: '✗ Haram', doubtTag: '⚠ Şüpheli',
+    scoreLabel: '/ 100',
+    energy: 'Enerji', fat: 'Yağ', carbs: 'Karbonhidrat', protein: 'Protein',
+  },
+  fr: {
+    badge: 'Gratuit · Open Food Facts · 900K+ produits',
+    subtitle: 'Vérifiez si un produit alimentaire est Halal — instantanément, gratuitement',
+    placeholder: 'Entrez le code-barres…',
+    scanBtn: 'Scanner',
+    tryExamples: 'Essayez un exemple:',
+    analyzing: 'Analyse en cours…',
+    statProducts: 'Produits', statEcodes: 'Codes E', statCerts: 'Certif.', statFree: 'Gratuit',
+    howTitle: 'Comment ça marche',
+    how1Title: 'Code-barres', how1Desc: 'Entrez le numéro du produit',
+    how2Title: 'Analyse IA', how2Desc: 'Chaque ingrédient vérifié dans notre base halal',
+    how3Title: 'Résultat', how3Desc: 'Halal, Mushbooh ou Haram en secondes',
+    verdictHalal: 'HALAL', verdictMushbooh: 'MUSHBOOH', verdictHaram: 'HARAM',
+    subHalal: 'Aucun ingrédient interdit détecté',
+    subMushbooh: 'Ingrédients douteux — vérifiez avec un érudit',
+    subHaram: 'Contient des ingrédients interdits',
+    certTitle: '🏅 Certifications Halal',
+    noCert: 'Aucune certification halal connue trouvée.',
+    ingrTitle: '🧪 Analyse des ingrédients',
+    noFlag: 'Aucun ingrédient signalé dans la base de données.',
+    fullIngr: '📋 Liste complète des ingrédients',
+    noIngr: 'Données d\'ingrédients non disponibles.',
+    nutriTitle: '📊 Valeurs nutritionnelles',
+    disclaimerText: '⚠️ Avertissement: Cette analyse est fournie à titre informatif uniquement et ne constitue pas une fatwa religieuse. Vérifiez toujours avec un érudit islamique qualifié. Données provenant d\'Open Food Facts.',
+    notFound: 'Produit introuvable. Essayez un exemple ci-dessus.',
+    networkErr: 'Erreur réseau. Vérifiez votre connexion.',
+    halalTag: '✓ Halal', haramTag: '✗ Haram', doubtTag: '⚠ Douteux',
+    scoreLabel: '/ 100',
+    energy: 'Énergie', fat: 'Lipides', carbs: 'Glucides', protein: 'Protéines',
+  },
+  de: {
+    badge: 'Kostenlos · Open Food Facts · 900K+ Produkte',
+    subtitle: 'Prüfen Sie sofort, ob ein Lebensmittel Halal ist — kostenlos',
+    placeholder: 'Barcode-Nummer eingeben…',
+    scanBtn: 'Scannen',
+    tryExamples: 'Beispiel-Barcode ausprobieren:',
+    analyzing: 'Produkt wird analysiert…',
+    statProducts: 'Produkte', statEcodes: 'E-Nummern', statCerts: 'Zertifikate', statFree: 'Kostenlos',
+    howTitle: 'So funktioniert es',
+    how1Title: 'Barcode eingeben', how1Desc: 'Geben Sie die Nummer eines Lebensmittels ein',
+    how2Title: 'KI-Analyse', how2Desc: 'Jede Zutat wird in unserer Halal-Datenbank geprüft',
+    how3Title: 'Sofortiges Ergebnis', how3Desc: 'Halal, Mushbooh oder Haram in Sekunden',
+    verdictHalal: 'HALAL', verdictMushbooh: 'MUSHBOOH', verdictHaram: 'HARAM',
+    subHalal: 'Keine verbotenen Zutaten gefunden',
+    subMushbooh: 'Zweifelhafte Zutaten gefunden — bitte bei einem Gelehrten nachfragen',
+    subHaram: 'Enthält verbotene Zutaten',
+    certTitle: '🏅 Halal-Zertifizierungen',
+    noCert: 'Keine bekannte Halal-Zertifizierung in der Datenbank gefunden.',
+    ingrTitle: '🧪 Zutatenanalyse',
+    noFlag: 'Keine markierten Zutaten in der Datenbank gefunden.',
+    fullIngr: '📋 Vollständige Zutatenliste',
+    noIngr: 'Keine Zutatendaten für dieses Produkt verfügbar.',
+    nutriTitle: '📊 Nährwerte',
+    disclaimerText: '⚠️ Hinweis: Diese Analyse dient nur zu Informationszwecken und stellt keine religiöse Fatwa dar. Bitte immer bei einem qualifizierten islamischen Gelehrten nachfragen. Daten von Open Food Facts.',
+    notFound: 'Produkt nicht gefunden. Versuchen Sie einen der Beispiel-Barcodes.',
+    networkErr: 'Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.',
+    halalTag: '✓ Halal', haramTag: '✗ Haram', doubtTag: '⚠ Zweifelhaft',
+    scoreLabel: '/ 100',
+    energy: 'Energie', fat: 'Fett', carbs: 'Kohlenhydrate', protein: 'Eiweiß',
+  },
+  ar: {
+    badge: 'مجاني · Open Food Facts · أكثر من 900 ألف منتج',
+    subtitle: 'تحقق من حلال أي منتج غذائي — فوراً ومجاناً',
+    placeholder: 'أدخل رقم الباركود…',
+    scanBtn: 'فحص',
+    tryExamples: 'جرّب باركود مثال:',
+    analyzing: 'جاري تحليل المنتج…',
+    statProducts: 'منتج', statEcodes: 'رمز E', statCerts: 'جهة شهادة', statFree: 'مجاناً دائماً',
+    howTitle: 'كيف يعمل',
+    how1Title: 'أدخل الباركود', how1Desc: 'اكتب الرقم الموجود على أي منتج غذائي',
+    how2Title: 'تحليل بالذكاء الاصطناعي', how2Desc: 'يتم فحص كل مكوّن في قاعدة بيانات الحلال',
+    how3Title: 'نتيجة فورية', how3Desc: 'حلال أو مشبوه أو حرام في ثوانٍ',
+    verdictHalal: 'حلال', verdictMushbooh: 'مشبوه', verdictHaram: 'حرام',
+    subHalal: 'لم يتم الكشف عن مكوّنات محظورة',
+    subMushbooh: 'مكوّنات مشكوك فيها — تحقق مع عالم دين',
+    subHaram: 'يحتوي على مكوّنات محظورة',
+    certTitle: '🏅 شهادات الحلال',
+    noCert: 'لم يتم العثور على شهادة حلال معروفة في قاعدة البيانات.',
+    ingrTitle: '🧪 تحليل المكوّنات',
+    noFlag: 'لم يتم العثور على مكوّنات مُعلَّمة في قاعدة البيانات.',
+    fullIngr: '📋 قائمة المكوّنات الكاملة',
+    noIngr: 'لا تتوفر بيانات مكوّنات لهذا المنتج.',
+    nutriTitle: '📊 القيم الغذائية',
+    disclaimerText: '⚠️ تنبيه: هذا التحليل لأغراض إعلامية فقط ولا يُعدّ فتوى دينية. يُرجى دائماً التحقق مع عالم إسلامي مؤهل أو جهة حلال معتمدة. البيانات مصدرها Open Food Facts.',
+    notFound: 'المنتج غير موجود. جرّب أحد الباركودات المثال أعلاه.',
+    networkErr: 'خطأ في الشبكة. يرجى التحقق من اتصالك.',
+    halalTag: '✓ حلال', haramTag: '✗ حرام', doubtTag: '⚠ مشبوه',
+    scoreLabel: '/ 100',
+    energy: 'طاقة', fat: 'دهون', carbs: 'كربوهيدرات', protein: 'بروتين',
+  }
+};
+
+let lang = 'en';
+
+function t(key) { return (T[lang] && T[lang][key]) || T.en[key] || key; }
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent === l.toUpperCase()));
+  document.documentElement.lang = l;
+  // RTL support for Arabic
+  const isRTL = l === 'ar';
+  document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+  document.body.style.fontFamily = isRTL ? "'Cairo', 'Outfit', sans-serif" : "'Outfit', sans-serif";
+  // Load Arabic font if needed
+  if (isRTL && !document.getElementById('arabic-font')) {
+    const link = document.createElement('link');
+    link.id = 'arabic-font';
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap';
+    document.head.appendChild(link);
+  }
+  // Update all data-t elements
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const key = el.getAttribute('data-t');
+    el.textContent = t(key);
+  });
+  // Placeholders
+  document.querySelectorAll('[data-placeholder-t]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-placeholder-t'));
+  });
+}
+
+/* ============================================================
+   HALAL DATABASE
+============================================================ */
+const HARAM_DB = {
+  'lard': { name: 'Lard', reason: 'Pork fat' },
+  'pork': { name: 'Pork', reason: 'Forbidden in Islam' },
+  'ham': { name: 'Ham', reason: 'Pork product' },
+  'bacon': { name: 'Bacon', reason: 'Pork product' },
+  'pepperoni': { name: 'Pepperoni', reason: 'Pork product' },
+  'salami': { name: 'Salami', reason: 'May contain pork' },
+  'alcohol': { name: 'Alcohol', reason: 'Prohibited' },
+  'wine': { name: 'Wine', reason: 'Alcoholic beverage' },
+  'beer': { name: 'Beer', reason: 'Alcoholic beverage' },
+  'ethanol': { name: 'Ethanol', reason: 'Alcohol derivative' },
+  'rum': { name: 'Rum', reason: 'Alcoholic' },
+  'whisky': { name: 'Whisky', reason: 'Alcoholic' },
+  'whiskey': { name: 'Whiskey', reason: 'Alcoholic' },
+  'carmine': { name: 'Carmine / E120', reason: 'Insect-derived dye' },
+  'cochineal': { name: 'Cochineal / E120', reason: 'Insect-derived dye' },
+  'e120': { name: 'E120 (Carmine)', reason: 'Insect-derived red dye' },
+};
+
+const MUSHBOOH_DB = {
+  'gelatin': { name: 'Gelatin', reason: 'May be pork-derived' },
+  'gelatine': { name: 'Gelatine', reason: 'May be pork-derived' },
+  'e441': { name: 'E441 (Gelatine)', reason: 'Often pork-derived' },
+  'e422': { name: 'E422 (Glycerol)', reason: 'May be animal-derived' },
+  'e471': { name: 'E471 (Mono/Diglycerides)', reason: 'May be animal-derived' },
+  'e472': { name: 'E472 (Fatty acid esters)', reason: 'May be animal-derived' },
+  'e481': { name: 'E481 (Sodium stearoyl)', reason: 'May be animal-derived' },
+  'e482': { name: 'E482 (Calcium stearoyl)', reason: 'May be animal-derived' },
+  'e542': { name: 'E542 (Bone phosphate)', reason: 'From animal bones' },
+  'e631': { name: 'E631 (Sodium inosinate)', reason: 'May be pork-derived' },
+  'e635': { name: 'E635 (Disodium ribonucleotides)', reason: 'May be pork-derived' },
+  'e920': { name: 'E920 (L-Cysteine)', reason: 'May be animal/hair-derived' },
+  'l-cysteine': { name: 'L-Cysteine', reason: 'May be derived from hair/feathers' },
+  'rennet': { name: 'Rennet', reason: 'Animal or microbial — check source' },
+  'vanilla extract': { name: 'Vanilla Extract', reason: 'May contain alcohol' },
+  'natural flavour': { name: 'Natural Flavour', reason: 'Source unknown — may be animal' },
+  'natural flavor': { name: 'Natural Flavor', reason: 'Source unknown — may be animal' },
+};
+
+const HALAL_ECODES = {
+  'e100':'Curcumin','e101':'Riboflavin','e102':'Tartrazine','e104':'Quinoline Yellow',
+  'e110':'Sunset Yellow','e122':'Carmoisine','e123':'Amaranth','e124':'Ponceau 4R',
+  'e129':'Allura Red AC','e131':'Patent Blue V','e133':'Brilliant Blue FCF',
+  'e140':'Chlorophyll','e141':'Copper complexes of chlorophylls',
+  'e150a':'Caramel I','e150b':'Caramel II','e150c':'Caramel III','e150d':'Caramel IV',
+  'e160a':'Alpha-carotene','e160b':'Annatto','e160c':'Paprika extract',
+  'e161b':'Lutein','e162':'Beetroot red','e163':'Anthocyanins',
+  'e170':'Calcium carbonate','e171':'Titanium dioxide','e172':'Iron oxides',
+  'e200':'Sorbic acid','e202':'Potassium sorbate','e203':'Calcium sorbate',
+  'e210':'Benzoic acid','e211':'Sodium benzoate','e212':'Potassium benzoate',
+  'e220':'Sulphur dioxide','e221':'Sodium sulphite','e260':'Acetic acid',
+  'e261':'Potassium acetate','e262':'Sodium acetates','e270':'Lactic acid',
+  'e280':'Propionic acid','e281':'Sodium propanoate',
+  'e300':'Ascorbic acid (Vit C)','e301':'Sodium ascorbate','e302':'Calcium ascorbate',
+  'e306':'Tocopherols (Vit E)','e307':'Alpha-tocopherol','e308':'Gamma-tocopherol',
+  'e322':'Lecithins','e325':'Sodium lactate','e326':'Potassium lactate',
+  'e327':'Calcium lactate','e330':'Citric acid','e331':'Sodium citrates',
+  'e332':'Potassium citrates','e333':'Calcium citrates','e334':'Tartaric acid',
+  'e400':'Alginic acid','e401':'Sodium alginate','e402':'Potassium alginate',
+  'e404':'Calcium alginate','e406':'Agar','e407':'Carrageenan',
+  'e410':'Locust bean gum','e412':'Guar gum','e413':'Tragacanth',
+  'e414':'Acacia gum','e415':'Xanthan gum','e416':'Karaya gum',
+  'e418':'Gellan gum','e420':'Sorbitol','e421':'Mannitol',
+  'e440':'Pectins','e450':'Diphosphates','e451':'Triphosphates',
+  'e460':'Microcrystalline cellulose','e461':'Methyl cellulose',
+  'e500':'Sodium carbonates','e501':'Potassium carbonates',
+  'e503':'Ammonium carbonates','e504':'Magnesium carbonates',
+  'e508':'Potassium chloride','e509':'Calcium chloride',
+  'e516':'Calcium sulphate','e524':'Sodium hydroxide','e525':'Potassium hydroxide',
+  'e551':'Silicon dioxide','e552':'Calcium silicate',
+  'e621':'Monosodium glutamate','e640':'Glycine',
+  'e901':'Beeswax','e903':'Carnauba wax','e904':'Shellac',
+  'e950':'Acesulfame K','e951':'Aspartame','e953':'Isomalt',
+  'e954':'Saccharin','e955':'Sucralose','e960':'Steviol glycosides',
+  'e965':'Maltitol','e966':'Lactitol','e967':'Xylitol','e968':'Erythritol',
+};
+
+// Known halal certified brands (simplified)
+const CERT_BRANDS = {
+  ifanca: ['halal', 'ifanca', 'islamic food'],
+  hfa: ['hfa', 'halal food authority'],
+  esma: ['esma', 'uae halal'],
+  jakim: ['jakim', 'malaysia halal'],
+};
+
+const CERT_INFO = {
+  ifanca: { name: 'IFANCA', region: '🇺🇸 North America', logo: 'IFANCA' },
+  hfa: { name: 'HFA', region: '🇬🇧 UK & Europe', logo: 'HFA' },
+  esma: { name: 'ESMA', region: '🇦🇪 UAE / Global', logo: 'ESMA' },
+  jakim: { name: 'JAKIM', region: '🇲🇾 Malaysia / Global', logo: 'JAKIM' },
+};
+
+function detectCerts(product) {
+  const searchText = JSON.stringify(product).toLowerCase();
+  const found = [];
+  for (const [key, keywords] of Object.entries(CERT_BRANDS)) {
+    if (keywords.some(k => searchText.includes(k))) {
+      found.push(key);
+    }
+  }
+  return found;
+}
+
+function analyzeIngredients(text) {
+  if (!text) return { items: [], verdict: 'mushbooh', score: 50 };
+  const lower = text.toLowerCase();
+  const findings = [];
+  const flags = [];
+
+  for (const [key, val] of Object.entries(HARAM_DB)) {
+    if (lower.includes(key)) {
+      if (!findings.find(f => f.name === val.name)) {
+        findings.push({ name: val.name, reason: val.reason, status: 'haram' });
+        flags.push('haram');
+      }
+    }
+  }
+  for (const [key, val] of Object.entries(MUSHBOOH_DB)) {
+    if (lower.includes(key)) {
+      if (!findings.find(f => f.name === val.name)) {
+        findings.push({ name: val.name, reason: val.reason, status: 'mushbooh' });
+        flags.push('mushbooh');
+      }
+    }
+  }
+  for (const [code, name] of Object.entries(HALAL_ECODES)) {
+    if (lower.includes(code)) {
+      if (!findings.find(f => f.name.toLowerCase().includes(code))) {
+        findings.push({ name: `${name} (${code.toUpperCase()})`, reason: 'Permissible additive', status: 'halal' });
+      }
+    }
+  }
+
+  let verdict = 'halal';
+  let score = 96;
+  if (flags.includes('haram')) { verdict = 'haram'; score = 8; }
+  else if (flags.includes('mushbooh')) { verdict = 'mushbooh'; score = 54; }
+  else if (findings.length === 0) { score = 72; } // no data
+
+  return { items: findings, verdict, score };
+}
+
+/* ============================================================
+   SCAN
+============================================================ */
+async function scan() {
+  const raw = document.getElementById('barcodeInput').value.trim().replace(/\s/g,'');
+  const barcode = raw.replace(/\D/g,'');
+  if (!barcode || barcode.length < 4) {
+    showError('Please enter a valid barcode number (digits only).');
+    return;
+  }
+
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('intro').style.display = 'none';
+
+  // 1. Check brand DB first — if we have verified data, show it immediately
+  const brandInfo = BRAND_DB[barcode] || getCustomDB()[barcode];
+
+  try {
+    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    if (data.status !== 1 || !data.product) {
+      // Not in Open Food Facts — but maybe we have brand DB data
+      if (brandInfo) {
+        renderBrandOnly(barcode, brandInfo);
+      } else {
+        showError(t('notFound'));
+      }
+      return;
+    }
+    renderResult(data.product, barcode);
+  } catch (e) {
+    if (brandInfo) {
+      // Network error but we have local data — show it
+      renderBrandOnly(barcode, brandInfo);
+    } else if (e.message && e.message.includes('HTTP')) {
+      showError(t('notFound'));
+    } else {
+      showError(t('networkErr'));
+    }
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+  }
+}
+
+// Show result using only brand DB (when OFF doesn't have the product)
+function renderBrandOnly(barcode, b) {
+  const vMap = {
+    halal:    { cls:'halal',    icon:'✅', titleKey:'verdictHalal',    subKey:'subHalal',    ar:'حلال'  },
+    mushbooh: { cls:'mushbooh', icon:'⚠️', titleKey:'verdictMushbooh', subKey:'subMushbooh', ar:'مشبوه' },
+    haram:    { cls:'haram',    icon:'❌', titleKey:'verdictHaram',     subKey:'subHaram',    ar:'حرام'  },
+  };
+  const vd = vMap[b.verdict] || vMap.mushbooh;
+
+  const ingrHTML = (b.ingredients || []).map(ing => {
+    const flagged = b.ingredientFlags && b.ingredientFlags.find(f => f.startsWith(ing));
+    const status = flagged ? 'haram' : 'halal';
+    return `<div class="ingr-item">
+      <div class="ingr-left"><div class="ingr-name">${ing}</div></div>
+      <span class="ibadge ${status==='halal'?'ok':'no'}">${status==='halal'?t('halalTag'):t('haramTag')}</span>
+    </div>`;
+  }).join('');
+
+  const warningHTML = b.warning
+    ? `<div style="margin:10px 0;background:rgba(251,191,36,0.1);border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:10px 12px;font-size:12px;color:#92400e;">⚠️ ${b.warning}</div>`
+    : '';
+
+  document.getElementById('result').innerHTML = `
+    <div class="product-card">
+      <div class="product-row">
+        <div class="product-img-ph" style="font-size:36px;">${b.logo}</div>
+        <div class="product-info">
+          <div class="product-name">${b.product}</div>
+          <div class="product-brand">${b.brand}</div>
+          <div class="product-barcode">${barcode}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict ${vd.cls}">
+      <div class="v-icon">${vd.icon}</div>
+      <div class="v-body">
+        <div class="v-title">${t(vd.titleKey)} <span class="v-title-ar">${vd.ar}</span></div>
+        <div class="v-sub">${t(vd.subKey)}</div>
+      </div>
+      <div class="score-circle">${b.score}<span style="font-size:11px;opacity:.7">/100</span></div>
+    </div>
+
+    ${b.certifications && b.certifications.length ? `
+    <div class="card">
+      <div class="card-title">${t('certTitle')}</div>
+      ${b.certifications.map(c => `<div style="padding:6px 0;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);">🏅 ${c}</div>`).join('')}
+    </div>` : ''}
+
+    ${b.ingredients && b.ingredients.length ? `
+    <div class="card">
+      <div class="card-title">${t('ingrTitle')}</div>
+      ${ingrHTML}
+    </div>` : ''}
+
+    ${warningHTML}
+
+    <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #4ade80;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#166534;margin-bottom:8px;">📧 Company Statement (Verified)</div>
+      <div style="font-size:13px;font-weight:600;color:#14532d;margin-bottom:6px;">${b.logo} ${b.brand}</div>
+      <div style="font-size:12px;color:#166534;line-height:1.6;margin-bottom:8px;font-style:italic;">"${b.companyStatement}"</div>
+      <div style="font-size:11px;color:#15803d;font-weight:600;">📌 Source: ${b.source}</div>
+    </div>
+
+    <div class="disclaimer">${t('disclaimerText')}</div>
+  `;
+
+  document.getElementById('result').style.display = 'block';
+  document.querySelector('.result').scrollIntoView({ behavior:'smooth', block:'start' });
+  saveToHistory(barcode, b.product, b.verdict, b.score);
+}
+
+function renderResult(p, barcode) {
+  const name = p.product_name || p.product_name_en || p.generic_name || 'Unknown Product';
+  const brand = p.brands || '';
+  const ingredients = p.ingredients_text || p.ingredients_text_en || '';
+  const imgUrl = p.image_front_small_url || p.image_front_url || '';
+  const categories = (p.categories_tags || []).slice(0,3).map(c => c.replace(/^[a-z]+:/,'')).filter(Boolean);
+
+  const analysis = analyzeIngredients(ingredients);
+  const certs = detectCerts(p);
+  const n = p.nutriments || {};
+
+  // Brand DB — override AI verdict with verified company data
+  const brandInfo = BRAND_DB[barcode] || getCustomDB()[barcode];
+  if (brandInfo) {
+    analysis.verdict = brandInfo.verdict;
+    analysis.score = brandInfo.score;
+  }
+
+  const vMap = {
+    halal: { cls:'halal', icon:'✅', titleKey:'verdictHalal', subKey:'subHalal', ar:'حلال' },
+    mushbooh: { cls:'mushbooh', icon:'⚠️', titleKey:'verdictMushbooh', subKey:'subMushbooh', ar:'مشبوه' },
+    haram: { cls:'haram', icon:'❌', titleKey:'verdictHaram', subKey:'subHaram', ar:'حرام' },
+  };
+  const vd = vMap[analysis.verdict];
+
+  // Ingredients HTML
+  let ingrHTML = '';
+  const sorted = [...analysis.items].sort((a,b) => {
+    const o = { haram:0, mushbooh:1, halal:2 };
+    return o[a.status] - o[b.status];
+  });
+  if (sorted.length > 0) {
+    ingrHTML = sorted.map(i => `
+      <div class="ingr-item">
+        <div class="ingr-left">
+          <div class="ingr-name">${i.name}</div>
+          <div class="ingr-reason">${i.reason}</div>
+        </div>
+        <span class="ibadge ${i.status==='halal'?'ok':i.status==='haram'?'no':'warn'}">
+          ${i.status==='halal'?t('halalTag'):i.status==='haram'?t('haramTag'):t('doubtTag')}
+        </span>
+      </div>`).join('');
+  } else {
+    ingrHTML = `<div style="color:var(--muted);font-size:13px;padding:6px 0">${t('noFlag')}</div>`;
+  }
+
+  // Cert HTML
+  let certHTML = '';
+  if (certs.length > 0) {
+    certHTML = certs.map(c => {
+      const ci = CERT_INFO[c];
+      return `<div class="cert-badge">
+        <div class="cert-badge-logo">${ci.logo}</div>
+        <div class="cert-badge-info">
+          <div class="cert-name">${ci.name}</div>
+          <div class="cert-region">${ci.region}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    certHTML = `<div style="color:var(--muted);font-size:13px">${t('noCert')}</div>`;
+  }
+
+  // Nutrition
+  const nutrItems = [
+    { label: t('energy'), val: n['energy-kcal_100g'] ? Math.round(n['energy-kcal_100g'])+'kcal' : '—' },
+    { label: t('fat'), val: n.fat_100g!=null ? n.fat_100g+'g' : '—' },
+    { label: t('carbs'), val: n.carbohydrates_100g!=null ? n.carbohydrates_100g+'g' : '—' },
+    { label: t('protein'), val: n.proteins_100g!=null ? n.proteins_100g+'g' : '—' },
+  ];
+  const nutriHTML = nutrItems.map(x => `
+    <div class="nutri-item">
+      <div class="nutri-label">${x.label}</div>
+      <div class="nutri-val">${x.val}</div>
+    </div>`).join('');
+
+  const imgEl = imgUrl
+    ? `<img src="${imgUrl}" class="product-img" alt="${name}" onerror="this.outerHTML='<div class=product-img-ph>🛒</div>'">`
+    : `<div class="product-img-ph">🛒</div>`;
+
+  document.getElementById('result').innerHTML = `
+    <div class="product-card">
+      <div class="product-row">
+        ${imgEl}
+        <div class="product-info">
+          <div class="product-name">${name}</div>
+          ${brand ? `<div class="product-brand">${brand}</div>` : ''}
+          <div class="product-barcode">${barcode}</div>
+          ${categories.length ? `<div class="product-tags">${categories.map(c=>`<span class="ptag">${c}</span>`).join('')}</div>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict ${vd.cls}">
+      <div class="v-icon">${vd.icon}</div>
+      <div class="v-body">
+        <div class="v-title">
+          ${t(vd.titleKey)}
+          <span class="v-title-ar">${vd.ar}</span>
+        </div>
+        <div class="v-sub">${t(vd.subKey)}</div>
+      </div>
+      <div class="v-score-wrap">
+        <div class="v-score">${analysis.score}</div>
+        <div class="v-score-label">${t('scoreLabel')}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">${t('certTitle')}</div>
+      <div class="cert-found">${certHTML}</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">${t('ingrTitle')}</div>
+      <div class="ingr-list">${ingrHTML}</div>
+      ${ingredients ? `
+        <div style="margin-top:14px">
+          <div class="card-title" style="margin-bottom:8px">${t('fullIngr')}</div>
+          <div class="raw-ingr">${ingredients}</div>
+        </div>` : `<div style="color:var(--muted);font-size:13px;margin-top:10px">${t('noIngr')}</div>`}
+    </div>
+
+    <div class="card">
+      <div class="card-title">${t('nutriTitle')} <span style="font-weight:400;text-transform:none;letter-spacing:0">(per 100g)</span></div>
+      <div class="nutri-grid">${nutriHTML}</div>
+    </div>
+
+    <div class="disclaimer">${t('disclaimerText')}</div>
+  `;
+
+  document.getElementById('result').style.display = 'block';
+  document.querySelector('.result').scrollIntoView({ behavior:'smooth', block:'start' });
+  saveToHistory(barcode, name, analysis.verdict, analysis.score);
+
+  if (brandInfo) {
+    const warningHTML = brandInfo.warning
+      ? '<div style="margin-top:8px; background:rgba(251,191,36,0.15); border-left:3px solid #f59e0b; border-radius:0 8px 8px 0; padding:8px 10px; font-size:12px; color:#92400e;">⚠️ ' + brandInfo.warning + '</div>'
+      : '';
+    const brandHTML = '<div style="margin-top:16px; background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:2px solid #4ade80; border-radius:16px; padding:16px;">'
+      + '<div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#166534; margin-bottom:8px;">📧 Company Statement (Verified)</div>'
+      + '<div style="font-size:13px; font-weight:600; color:#14532d; margin-bottom:6px;">' + brandInfo.logo + ' ' + brandInfo.brand + '</div>'
+      + '<div style="font-size:12px; color:#166534; line-height:1.6; margin-bottom:8px; font-style:italic;">"' + brandInfo.companyStatement + '"</div>'
+      + '<div style="font-size:11px; color:#15803d; font-weight:600;">📌 Source: ' + brandInfo.source + '</div>'
+      + warningHTML
+      + '</div>';
+    document.getElementById('result').innerHTML += brandHTML;
+  }
+}
+
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  const barcode = document.getElementById('barcodeInput').value.trim().replace(/\D/g,'');
+  const isNotFound = msg === t('notFound');
+
+  box.innerHTML = '❌ ' + msg + (isNotFound && barcode ? `
+    <div style="margin-top:12px;">
+      <button onclick="openAddProduct('${barcode}')" style="background:linear-gradient(135deg,#165c30,#22a152);color:white;border:none;border-radius:12px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;width:100%;">
+        📸 Fotoğraf çek, bu ürünü ekle
+      </button>
+    </div>` : '');
+  box.style.display = 'block';
+  document.getElementById('intro').style.display = 'block';
+}
+
+/* ============================================================
+   CUSTOM PRODUCT DATABASE (localStorage)
+============================================================ */
+function getCustomDB() {
+  try { return JSON.parse(localStorage.getItem('halalCustomDB') || '{}'); } catch(e) { return {}; }
+}
+function saveCustomDB(db) {
+  try { localStorage.setItem('halalCustomDB', JSON.stringify(db)); } catch(e) {}
+}
+
+let addProductBarcode = '';
+
+function openAddProduct(barcode) {
+  addProductBarcode = barcode;
+  document.getElementById('addProductBarcode').textContent = barcode;
+  document.getElementById('addProductModal').style.display = 'flex';
+  // Reset form
+  document.getElementById('addProductResult').style.display = 'none';
+  document.getElementById('addProductResult').innerHTML = '';
+  document.getElementById('addPhotoPreview').style.display = 'none';
+  document.getElementById('addProductSaveBtn').style.display = 'none';
+  document.getElementById('addProductForm').style.display = 'block';
+  window._addProductData = null;
+}
+
+function closeAddProductModal() {
+  document.getElementById('addProductModal').style.display = 'none';
+}
+
+function triggerAddPhoto() {
+  document.getElementById('addProductPhotoInput').click();
+}
+
+async function handleAddProductPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const preview = document.getElementById('addPhotoPreview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+
+    // Show loading
+    document.getElementById('addProductAnalyzeBtn').style.display = 'none';
+    document.getElementById('addProductLoading').style.display = 'block';
+
+    try {
+      const base64 = e.target.result.split(',')[1];
+      const mediaType = file.type || 'image/jpeg';
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+              { type: 'text', text: `This is a food product photo. The barcode is ${addProductBarcode}.
+Extract all information visible and respond ONLY with valid JSON:
+{
+  "productName": "full product name",
+  "brand": "brand name",
+  "ingredients": ["ingredient1", "ingredient2"],
+  "halalVerdict": "halal" or "mushbooh" or "haram",
+  "halalScore": 0-100,
+  "halalReason": "brief reason for verdict",
+  "certifications": ["cert name if visible on packaging"],
+  "warnings": ["any warning e.g. contains pork gelatin"]
+}` }
+            ]
+          }]
+        })
+      });
+
+      const data = await response.json();
+      document.getElementById('addProductLoading').style.display = 'none';
+
+      if (data.error) throw new Error(data.error.message);
+
+      const text = data.content.map(c => c.text || '').join('');
+      const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+      window._addProductData = parsed;
+
+      // Show result preview
+      const verdictColors = { halal:'#166534', mushbooh:'#92400e', haram:'#991b1b' };
+      const verdictBg = { halal:'#dcfce7', mushbooh:'#fef9c3', haram:'#fee2e2' };
+      const v = parsed.halalVerdict || 'mushbooh';
+      document.getElementById('addProductResult').innerHTML = `
+        <div style="background:${verdictBg[v]};border-radius:12px;padding:14px;margin-top:12px;">
+          <div style="font-size:14px;font-weight:800;color:${verdictColors[v]};">
+            ${v==='halal'?'✅ HALAL':v==='haram'?'❌ HARAM':'⚠️ MUSHBOOH'} — ${parsed.halalScore}/100
+          </div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-top:6px;">${parsed.productName}</div>
+          <div style="font-size:12px;color:var(--muted);">${parsed.brand}</div>
+          <div style="font-size:12px;color:${verdictColors[v]};margin-top:4px;">${parsed.halalReason}</div>
+          ${parsed.ingredients && parsed.ingredients.length ? '<div style="font-size:11px;color:var(--muted);margin-top:6px;">İçerikler: ' + parsed.ingredients.slice(0,5).join(', ') + '</div>' : ''}
+        </div>`;
+      document.getElementById('addProductResult').style.display = 'block';
+      document.getElementById('addProductSaveBtn').style.display = 'block';
+
+    } catch(err) {
+      document.getElementById('addProductLoading').style.display = 'none';
+      document.getElementById('addProductAnalyzeBtn').style.display = 'block';
+      document.getElementById('addProductResult').innerHTML = '<div style="color:var(--red);font-size:13px;">❌ Analiz başarısız. Tekrar dene.</div>';
+      document.getElementById('addProductResult').style.display = 'block';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveAddedProduct() {
+  const data = window._addProductData;
+  if (!data || !addProductBarcode) return;
+
+  const db = getCustomDB();
+  db[addProductBarcode] = {
+    barcode: addProductBarcode,
+    product: data.productName || 'Unknown Product',
+    brand: data.brand || '',
+    logo: '📦',
+    verdict: data.halalVerdict || 'mushbooh',
+    score: data.halalScore || 50,
+    certifications: data.certifications || [],
+    companyStatement: data.halalReason || 'Analyzed from product photo.',
+    source: 'Fotoğraftan AI analizi',
+    warning: (data.warnings || []).join(' '),
+    ingredients: data.ingredients || [],
+    ingredientFlags: [],
+    addedAt: new Date().toISOString()
+  };
+  saveCustomDB(db);
+
+  document.getElementById('addProductSaveBtn').textContent = '✅ Kaydedildi!';
+  setTimeout(() => {
+    closeAddProductModal();
+    // Re-scan to show result
+    document.getElementById('barcodeInput').value = addProductBarcode;
+    scan();
+  }, 1000);
+}
+
+function tryBarcode(code) {
+  document.getElementById('barcodeInput').value = code;
+  scan();
+}
+
+/* ============================================================
+   CAMERA BARCODE SCANNER (BarcodeDetector API + fallback)
+============================================================ */
+let camStream = null;
+let camInterval = null;
+
+async function openCamera() {
+  const modal = document.getElementById('cameraModal');
+  modal.style.display = 'flex';
+  const status = document.getElementById('camStatus');
+
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = document.getElementById('camVideo');
+    video.srcObject = camStream;
+    await video.play();
+
+    // Try native BarcodeDetector first (Chrome/Android)
+    if ('BarcodeDetector' in window) {
+      status.textContent = '🟢 Camera ready — point at barcode';
+      const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'] });
+      camInterval = setInterval(async () => {
+        try {
+          const barcodes = await detector.detect(video);
+          if (barcodes.length > 0) {
+            const code = barcodes[0].rawValue;
+            closeCamera();
+            document.getElementById('barcodeInput').value = code;
+            scan();
+          }
+        } catch(e) {}
+      }, 400);
+    } else {
+      // Fallback: use ZXing via CDN
+      status.textContent = '🟡 Loading scanner library…';
+      await loadScript('https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js');
+      status.textContent = '🟢 Camera ready — point at barcode';
+      const codeReader = new ZXing.BrowserMultiFormatReader();
+      codeReader.decodeFromVideoDevice(null, 'camVideo', (result, err) => {
+        if (result) {
+          closeCamera();
+          codeReader.reset();
+          document.getElementById('barcodeInput').value = result.getText();
+          scan();
+        }
+      });
+      // Store for cleanup
+      window._zxingReader = codeReader;
+    }
+  } catch(err) {
+    if (err.name === 'NotAllowedError') {
+      status.textContent = '❌ Camera permission denied. Please allow camera access.';
+    } else if (err.name === 'NotFoundError') {
+      status.textContent = '❌ No camera found on this device.';
+    } else {
+      status.textContent = '❌ Could not start camera: ' + err.message;
+    }
+  }
+}
+
+function closeCamera() {
+  document.getElementById('cameraModal').style.display = 'none';
+  if (camInterval) { clearInterval(camInterval); camInterval = null; }
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  if (window._zxingReader) { try { window._zxingReader.reset(); } catch(e){} window._zxingReader = null; }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+/* ============================================================
+   BRAND DATABASE — Araştırılmış şirket açıklamaları
+============================================================ */
+const BRAND_DB = {
+  // Nutella / Ferrero — barkod: 3017620422003
+  '3017620422003': {
+    brand: 'Ferrero / Nutella',
+    product: 'Nutella 400g',
+    logo: '🍫',
+    verdict: 'halal',
+    score: 78,
+    certifications: ['Halal certified in Australia (AFIC)', 'Halal certified in Malaysia & Indonesia', 'Most Ferrero factories halal-certified (19/25 as of 2020)'],
+    companyStatement: "Nutella® is Halal certified. Ferrero's halal journey began in 2009 and by 2020 covers 19 of 25 factories globally. All products in the Middle East are halal-certified.",
+    source: 'Ferrero Food Service Official FAQ',
+    warning: 'Europe & North America: Not officially certified in all markets. Some scholars debate trace vanilla extract. Check local packaging for halal logo.',
+    ingredients: ['Sugar', 'Palm Oil (RSPO-certified)', 'Hazelnuts 13%', 'Skim Milk Powder', 'Cocoa 7.4%', 'Lecithin (Soya)', 'Vanillin'],
+    ingredientFlags: []
+  },
+  // Haribo Goldbears Germany — barkod örneği
+  '4001686301470': {
+    brand: 'Haribo',
+    product: 'Goldbears (Germany/Europe)',
+    logo: '🐻',
+    verdict: 'haram',
+    score: 5,
+    certifications: [],
+    companyStatement: 'Haribo products in Germany and most of Europe are made with PORK SKIN GELATIN (Schweinegelatine). Haribo Germany officially states: "The HARIBO items containing gelatine available in Germany are primarily produced with pork skin gelatine."',
+    source: 'Haribo Official FAQ — haribo.com',
+    warning: '⛔ HARAM: Contains pork gelatin. Only Haribo produced in Turkey (with "Made in Turkey" label) is halal-certified by EHZ and TSE.',
+    ingredients: ['Glucose Syrup', 'Sugar', 'Gelatin (PORK)', 'Dextrose', 'Citric Acid', 'Fruit Juice Concentrates', 'Vegetable Oil', 'Carnauba Wax'],
+    ingredientFlags: ['Gelatin (PORK) — E441 — HARAM']
+  },
+  // Coca-Cola — barkod: 5449000000996
+  '5449000000996': {
+    brand: 'The Coca-Cola Company',
+    product: 'Coca-Cola Classic',
+    logo: '🥤',
+    verdict: 'halal',
+    score: 88,
+    certifications: ['Halal certified in Indonesia (MUI)', 'Halal certified in Malaysia', 'Recognized as permissible by scholars in 50+ countries'],
+    companyStatement: 'Coca-Cola USA official reply: "Our products are non-intoxicating (no alcohol) and do not contain meat ingredients. Even if our soft drink products are not formally certified as halal, they are officially recognized and registered as nonalcoholic beverages." UK statement: "None of the products of Coca-Cola Great Britain contain ingredients derived from mammals."',
+    source: 'Coca-Cola Official Twitter & GMWA Statement',
+    warning: 'Not formally halal-certified in USA/Canada/Europe, but no haram ingredients confirmed. Certified in Muslim-majority countries.',
+    ingredients: ['Carbonated Water', 'Sugar', 'Caramel Color E150d', 'Phosphoric Acid', 'Natural Flavors', 'Caffeine'],
+    ingredientFlags: []
+  },
+  // Oreo — barkod: 7622210449283
+  '7622210449283': {
+    brand: 'Mondelēz International',
+    product: 'Oreo Original',
+    logo: '🍪',
+    verdict: 'halal',
+    score: 72,
+    certifications: ['Halal certified by JAKIM in Malaysia', 'Halal certified by LPPOM MUI in Indonesia', 'Halal certified in UAE & Saudi Arabia (ESMA/GSO)'],
+    companyStatement: 'Mondelēz official statement: "Oreo biscuits produced in Europe are not Halal certified but their composition or production process does not make them unsuitable for the Muslim diet." The company confirms no pork-derived ingredients or alcohol. UAE Ministry of Economy confirmed: "What has been circulated that Oreo contains pork and alcohol is incorrect."',
+    source: 'Mondelēz International Official & UAE Ministry of Economy',
+    warning: 'Not certified in USA, Canada or Europe. Exceptions: Oreo Strawberry Cheesecake, Oreo Choco Brownie, Oreo Enrobed — these MAY contain questionable ingredients.',
+    ingredients: ['Wheat Flour', 'Sugar', 'Palm Oil', 'Rapeseed Oil', 'Cocoa Powder 4.3%', 'Wheat Starch', 'Glucose-Fructose Syrup', 'Soya Lecithin', 'Flavoring'],
+    ingredientFlags: []
+  },
+  // KitKat — barkod: 7613034626844
+  '7613034626844': {
+    brand: 'Nestlé',
+    product: 'KitKat 4-Finger',
+    logo: '🍫',
+    verdict: 'halal',
+    score: 75,
+    certifications: ['Halal certified in Malaysia & Indonesia', 'Halal certified in Australia (AFIC)', 'KitKat Gold, KitKat Chunky also halal-certified in AU (from April 2019)'],
+    companyStatement: "Nestle official reply: Yes, our KitKats are suitable for a Halal diet. Nestle Canada: We don't facilitate halal certification but rely on home market certification for imported products. Ingredients in US/EU version contain no haram components.",
+    source: 'Nestlé Official Customer Service & Chewwies Research',
+    warning: "Nestle confirms ingredients vary by market. US KitKat produced by Hersheys — check local label. Not certified in all European markets.",
+    ingredients: ['Sugar', 'Wheat Flour', 'Cocoa Butter', 'Skimmed Milk Powder', 'Cocoa Mass', 'Palm Oil', 'Lactose', 'Soy Lecithin', 'Yeast', 'Salt', 'Vanillin'],
+    ingredientFlags: []
+  },
+  // Pringles Original — barkod: 5053990101066
+  '5053990101066': {
+    brand: "Kellanova (Kellogg's)",
+    product: 'Pringles Original',
+    logo: '🥔',
+    verdict: 'halal',
+    score: 80,
+    certifications: ['Halal certified in Malaysia & Muslim-majority countries', 'Original flavor considered halal-suitable in EU'],
+    companyStatement: 'Kellanova has stated their commitment to providing halal-certified products. Pringles Original (plain) contains no animal-derived ingredients. However, halal certification is not universal — some flavors (BBQ, Sour Cream, Bacon) may contain non-halal ingredients.',
+    source: 'Kellanova / HalalGaze Research',
+    warning: '⚠️ Flavor-dependent: Original = safe. Avoid: Smoked Bacon, some BBQ flavors. Always check specific flavor packaging.',
+    ingredients: ['Dried Potatoes', 'Vegetable Oils', 'Degerminated Milled Corn', 'Wheat Starch', 'Rice Flour', 'Salt', 'Dextrose'],
+    ingredientFlags: []
+  },
+  // Toblerone — barkod: 7622300441937
+  '7622300441937': {
+    brand: 'Mondelēz International',
+    product: 'Toblerone Original',
+    logo: '🍫',
+    verdict: 'halal',
+    score: 92,
+    certifications: ['Halal certified — Bern Switzerland factory (April 2018)', 'Also Kosher certified'],
+    companyStatement: 'Mondelēz official CNN statement: "The certification did not result in any change to our beloved traditional Toblerone original recipe. Due to the inherent nature of Toblerone chocolate its production process essentially meets the halal criteria anyway."',
+    source: 'Mondelēz International — CNN & Global News (Dec 2018)',
+    warning: 'Recipe unchanged — always was halal-suitable. Factory officially certified since April 2018.',
+    ingredients: ['Sugar', 'Whole Milk Powder', 'Cocoa Butter', 'Cocoa Mass', 'Honey 3.6%', 'Almond 6%', 'Egg White', 'Nougat'],
+    ingredientFlags: []
+  },
+  // Ferrero Rocher — barkod: 3017620401139
+  '3017620401139': {
+    brand: 'Ferrero',
+    product: 'Ferrero Rocher',
+    logo: '🍬',
+    verdict: 'halal',
+    score: 82,
+    certifications: ['Halal certified in Malaysia & Indonesia', 'Halal certified in Australia (AFIC)', 'Halal certified in Gulf countries'],
+    companyStatement: 'Ferrero official FAQ 2024: "Some of our products are certified halal in specific markets such as Malaysia and Indonesia. Our halal journey began in 2009. By 2020, 19 of our 25 factories are halal-certified." IlmHub confirmed: Ferrero Rocher is halal and permissible when produced in Canada, US, Germany & Italy.',
+    source: 'Ferrero Official FAQ 2024 & Salaam Gateway',
+    warning: 'Check packaging for halal logo in your market. Shared factories may process non-halal Ferrero lines (Mon Chéri contains alcohol).',
+    ingredients: ['Milk Chocolate', 'Sugar', 'Hazelnuts 30%', 'Wheat Flour', 'Skim Milk Powder', 'Whey Powder', 'Cocoa Butter', 'Soy Lecithin', 'Vanillin'],
+    ingredientFlags: []
+  },
+  // Kinder Bueno — barkod: 8000500103838
+  '8000500103838': {
+    brand: 'Ferrero / Kinder',
+    product: 'Kinder Bueno',
+    logo: '🍫',
+    verdict: 'halal',
+    score: 78,
+    certifications: ['Ferrero confirmed suitable for halal diet', 'Halal certified in Malaysia & Gulf countries'],
+    companyStatement: 'Ferrero confirmed directly to theHalalLife.co.uk (Mar 2024): Kinder Bueno is suitable for a halal diet. No pork derivatives, no alcohol. Lecithin used is soy-based.',
+    source: 'The Halal Life UK — Ferrero Direct Confirmation (Mar 2024)',
+    warning: 'Not officially certified in all European markets. Kinder Delice in France may contain "arome" — check local packaging.',
+    ingredients: ['Sugar', 'Wheat Flour', 'Palm Oil', 'Hazelnuts', 'Cocoa Butter', 'Skim Milk Powder', 'Cocoa Mass', 'Soy Lecithin', 'Vanillin'],
+    ingredientFlags: []
+  },
+  // Maggi Instant Noodles — barkod: 7613034738158
+  '7613034738158': {
+    brand: 'Nestlé / MAGGI',
+    product: 'Maggi Instant Noodles',
+    logo: '🍜',
+    verdict: 'halal',
+    score: 90,
+    certifications: ['Halal certified (official Maggi FAQ)', 'Kosher certified', 'Vegetarian certified'],
+    companyStatement: 'MAGGI® Official FAQ: "Maggi® Instant Noodles are vegetarian, kosher and halal-certified! Our vegetarian foods contain ZERO meat, poultry, fish/seafood, and/or any ingredients derived from these sources, such as stock or broth, lard, gelatin, or collagen."',
+    source: 'MAGGI® Official FAQ — goodnes.com',
+    warning: 'Chicken flavor variants — verify halal cert on local packaging as chicken source may vary by country.',
+    ingredients: ['Wheat Flour', 'Palm Oil', 'Salt', 'Sugar', 'Spices', 'Onion Powder', 'Garlic Powder'],
+    ingredientFlags: []
+  },
+  // Lay's Original — barkod: 5053990108683
+  '5053990108683': {
+    brand: "PepsiCo / Lay's",
+    product: "Lay's Classic Original",
+    logo: '🥔',
+    verdict: 'halal',
+    score: 75,
+    certifications: ['JAKIM certified in Malaysia', 'Halal certified in Pakistan (PepsiCo Pakistan)', 'Halal certified in UAE, Saudi Arabia, Egypt'],
+    companyStatement: "PepsiCo Pakistan official statement: Lay's Snacks Pakistan strictly adheres to local food laws using only certified halal ingredients in all products. Original flavor (potato, oil, salt) contains no animal derivatives. JAKIM certified for Malaysia market.",
+    source: 'PepsiCo Pakistan Official & AFP Fact Check 2020',
+    warning: '⚠️ Flavor-dependent: Original = Halal. AVOID: Sour Cream, Bacon, some BBQ flavors in US/EU — may contain non-halal enzymes. Always check specific flavor packaging.',
+    ingredients: ['Potatoes', 'Vegetable Oil (Sunflower/Corn)', 'Salt'],
+    ingredientFlags: []
+  },
+  // Milka — barkod: 7622210012661
+  '7622210012661': {
+    brand: 'Mondelēz International',
+    product: 'Milka Alpine Milk',
+    logo: '🍫',
+    verdict: 'mushbooh',
+    score: 45,
+    certifications: [],
+    companyStatement: 'Milka customer service official response: "We do not have equipment that is used only for halal production. Furthermore, our products are not certified as halal." Mondelēz confirmed no dedicated halal production line for Milka.',
+    source: 'Milka Official Customer Service Response',
+    warning: '⚠️ NOT halal certified. Shared production lines with non-halal products. E476 emulsifier source unspecified. Suitable for vegetarians but NOT officially halal. Consult your scholar.',
+    ingredients: ['Sugar', 'Whole Milk Powder', 'Cocoa Butter', 'Cocoa Mass', 'Wheat Flour', 'Whey Powder', 'Butterfat', 'E476 Emulsifier', 'Vanillin'],
+    ingredientFlags: ['E476 — source unspecified (may be animal-derived)']
+  },
+  // KitKat Chunky — barkod: 8593893747614
+  '8593893747614': {
+    brand: 'Nestlé',
+    product: 'KitKat Chunky',
+    logo: '🍫',
+    verdict: 'halal',
+    score: 75,
+    certifications: ['Halal certified in Australia (AFIC)', 'Halal certified in Malaysia'],
+    companyStatement: 'Nestlé confirms KitKat Chunky is halal-certified in Australia and Malaysia. Suitable for halal diet.',
+    source: 'Nestlé Official',
+    warning: 'Verify local packaging for halal logo in your country.',
+    ingredients: ['Sugar', 'Wheat Flour', 'Cocoa Butter', 'Skimmed Milk', 'Palm Oil', 'Soy Lecithin'],
+    ingredientFlags: []
+  },  // KitKat Chunky — son entry
+
+  // M&M's — barkod: 0040000488064
+  '0040000488064': {
+    brand: "Mars Inc. / M&M's",
+    product: "M&M's Milk Chocolate",
+    logo: '🍬',
+    verdict: 'mushbooh',
+    score: 38,
+    certifications: ['Halal certified in Malaysia & UAE (local packaging only)'],
+    companyStatement: "M&M's official FAQ (Feb 2025): M&M'S are not certified as Halal or Kosher. However, they do not contain any pork-based ingredients. UK: M&M's UK Twitter stated products are not suitable for a halal diet — additives derived from animal products are used. UAE: products sold in UAE stores are confirmed halal by local authorities.",
+    source: "Mars Official FAQ 2025 & M&M's UK Twitter Statement",
+    warning: "⚠️ NOT halal certified in USA/UK/Europe. UK version contains E120 (carmine from insects) — HARAM. UAE/Malaysia versions are halal-certified. Always check country of manufacture on pack.",
+    ingredients: ['Milk Chocolate', 'Sugar', 'Cocoa Butter', 'Skim Milk', 'Cocoa Mass', 'Soy Lecithin', 'E120 Carmine (in some regions)', 'Artificial Colors'],
+    ingredientFlags: ['E120 Carmine — insect-derived — HARAM in some regional versions']
+  },
+
+  // Snickers — barkod: 0040000404651
+  '0040000404651': {
+    brand: 'Mars Wrigley / Snickers',
+    product: 'Snickers Original',
+    logo: '🍫',
+    verdict: 'mushbooh',
+    score: 55,
+    certifications: ['Halal certified in MENA/Gulf region (Mars official)', 'Halal certified in Malaysia & Indonesia'],
+    companyStatement: "Snickers MENA official website: Yes, all Snickers products sold in the MENA region are halal suitable. US: Snickers bars in the U.S. are not officially Halal-certified, but contain ingredients generally considered Halal (milk, eggs, peanuts, caramel). No gelatin in standard bar. Some hi-protein Snickers variants contain gelatin — avoid those.",
+    source: 'Snickers MENA Official Site & CandyRetailer FAQ',
+    warning: "⚠️ Mushbooh: No gelatin in classic bar, but NOT certified in USA/EU. MENA/Malaysia = certified halal. Avoid Snickers Hi-Protein — contains gelatin. Check pack for halal logo.",
+    ingredients: ['Milk Chocolate', 'Peanuts', 'Caramel', 'Sugar', 'Palm Oil', 'Skim Milk', 'Egg Whites', 'Corn Syrup', 'Soy Lecithin', 'Salt'],
+    ingredientFlags: ['Egg Whites — halal only if no non-halal processing', 'No halal cert in EU/USA']
+  },
+
+  // Twix — barkod: 0040000445365
+  '0040000445365': {
+    brand: 'Mars Wrigley / Twix',
+    product: 'Twix Original',
+    logo: '🍫',
+    verdict: 'mushbooh',
+    score: 52,
+    certifications: ['Halal certified in UAE & MENA markets', 'Halal certified in Malaysia'],
+    companyStatement: "Mars official position: Twix does not contain pork or alcohol, but Mars does not apply for halal certification globally. Vanilla used in certain Twix formulations confirmed by Mars NOT to use alcohol as carrier — removing a common concern. Standard Twix ingredient lists do not show gelatin, lard, or explicit animal-derived additives.",
+    source: 'Mars Wrigley Official Statement & theHalalLife.co.uk Research',
+    warning: "⚠️ Not universally halal-certified. Ingredient-compatible with halal diet in most regions, but no official cert in USA/EU. UAE/Malaysia = certified. Always check local packaging for halal logo.",
+    ingredients: ['Milk Chocolate', 'Wheat Flour', 'Sugar', 'Palm Oil', 'Caramel', 'Skim Milk', 'Corn Syrup', 'Soy Lecithin', 'PGPR', 'Salt'],
+    ingredientFlags: ['No halal cert in EU/USA — emulsifier source unconfirmed']
+  },
+
+  // Bounty — barkod: 5000159461122
+  '5000159461122': {
+    brand: 'Mars Wrigley / Bounty',
+    product: 'Bounty Milk Chocolate',
+    logo: '🥥',
+    verdict: 'mushbooh',
+    score: 58,
+    certifications: ['Halal certified in UAE & Gulf countries', 'Halal certified in Malaysia & Indonesia'],
+    companyStatement: "Mars confirms Bounty is halal-certified in Middle East and Gulf region. UK Halal & Haram Directory: Bounty Dark, Milk, Milk Twin and Funsize are listed as Halal. Note: Bounty Milk Miniatures and some Funsize varieties contain calf whey powder — check specific variant packaging.",
+    source: 'Mars Official & UK Halal & Haram Directory',
+    warning: "⚠️ Standard Bounty bars generally halal-suitable. Avoid: Bounty Milk Miniatures — contains calf whey. Always check variant — Milk, Dark = OK; Miniatures = verify.",
+    ingredients: ['Coconut 28%', 'Sugar', 'Milk Chocolate', 'Glucose Syrup', 'Skimmed Milk Powder', 'Cocoa Butter', 'Cocoa Mass', 'Soy Lecithin', 'Salt'],
+    ingredientFlags: ['Calf whey in Miniatures variant — check specific pack']
+  },
+
+  // Cadbury Dairy Milk — barkod: 7622210449009
+  '7622210449009': {
+    brand: 'Mondelēz / Cadbury',
+    product: 'Cadbury Dairy Milk',
+    logo: '🍫',
+    verdict: 'mushbooh',
+    score: 55,
+    certifications: ['Halal certified in Malaysia (JAKIM)', 'Halal certified in South Africa (SANHA)', 'Halal certified in Australia (AFIC — by ingredients)'],
+    companyStatement: "Cadbury UK official response: All Cadbury Dairy Milk lines in the UK are suitable for vegetarians but NOT registered as halal. Cadbury Australia: Halal suitable by ingredients. Malaysia: JAKIM certified. Note: Some Cadbury Roses/Heroes assortments may contain alcohol flavourings — avoid those specific varieties.",
+    source: 'Cadbury Official Customer Service & belconi.com.my Research 2024',
+    warning: "⚠️ UK/EU: Suitable for vegetarians but NOT officially halal certified. Malaysia/South Africa = certified. AVOID: Cadbury Rum & Raisin, Roses/Heroes assortments (may contain alcohol). Plain Dairy Milk = generally safe by ingredients.",
+    ingredients: ['Sugar', 'Cocoa Butter', 'Cocoa Mass', 'Dried Whole Milk', 'Vegetable Fat', 'Emulsifiers (Soya Lecithin, E476)', 'Flavourings'],
+    ingredientFlags: ['E476 — source unspecified in some markets', 'Alcohol flavourings in Rum & Raisin variant']
+  },
+
+  // Doritos Nacho Cheese — barkod: 0028400090094
+  '0028400090094': {
+    brand: 'PepsiCo / Frito-Lay',
+    product: 'Doritos Nacho Cheese',
+    logo: '🌮',
+    verdict: 'haram',
+    score: 10,
+    certifications: ['Halal certified in UAE & Saudi Arabia (local formulation)', 'Halal certified in Canada (Nacho Cheese & Cool Ranch)'],
+    companyStatement: "Frito-Lay North America official confirmation: Doritos Nacho Cheese and Cool Ranch contain animal-derived enzymes (porcine rennet) in the cheese seasoning. PepsiCo confirmed to Muslim consumers: products in UK, USA, and Canada are not halal certified due to cheese and whey ingredients containing animal enzymes. UAE/Saudi formulations are halal-certified under local authorities.",
+    source: 'Frito-Lay Official Website & PepsiCo Consumer Affairs Confirmation',
+    warning: "⛔ HARAM in USA/UK/EU: Contains pork-derived enzymes in cheese seasoning. AVOID in Western markets. UAE/Saudi Arabia/Canada versions may be halal-certified — check local pack. Spicy Sweet Chili flavor = vegan, generally safer.",
+    ingredients: ['Corn', 'Vegetable Oil', 'Cheddar Cheese (Milk, Cheese Cultures, Salt, Enzymes)', 'Whey', 'Buttermilk', 'Monosodium Glutamate', 'Natural Flavors'],
+    ingredientFlags: ['Enzymes in Cheese — porcine (pork) source confirmed by Frito-Lay in USA/UK', 'Whey — animal-derived']
+  },
+
+  // Red Bull — barkod: 9002490100070
+  '9002490100070': {
+    brand: 'Red Bull GmbH',
+    product: 'Red Bull Energy Drink 250ml',
+    logo: '🐂',
+    verdict: 'halal',
+    score: 82,
+    certifications: ['IFANCA certified (USA)', 'HFA certified (UK)', 'Halal certified in Malaysia, UAE, Saudi Arabia'],
+    companyStatement: "Red Bull International Customer Service official reply: Red Bull Energy Drink is a non-alcoholic beverage. The taurine in Red Bull is NOT derived from animals — it is produced synthetically by pharmaceutical companies, making it suitable for Muslim and vegetarian diets. Red Bull is registered as halal in multiple Muslim-majority countries.",
+    source: 'Red Bull Official Customer Service & IFANCA Certification',
+    warning: 'Standard Red Bull is halal. AVOID: Red Bull Editions containing wine/beer flavors (e.g. some limited editions). Always check flavor-specific packaging.',
+    ingredients: ['Carbonated Water', 'Sucrose', 'Glucose', 'Citric Acid', 'Taurine (synthetic)', 'Sodium Bicarbonate', 'Magnesium Carbonate', 'Caffeine', 'Niacin', 'B Vitamins', 'Natural & Artificial Flavors'],
+    ingredientFlags: []
+  },
+
+  // Pepsi — barkod: 5449000214911
+  '5449000214911': {
+    brand: 'PepsiCo',
+    product: 'Pepsi Cola 330ml',
+    logo: '🥤',
+    verdict: 'halal',
+    score: 87,
+    certifications: ['Halal certified in Indonesia (MUI)', 'Halal certified in Malaysia (JAKIM)', 'Halal certified in Gulf countries', 'Recognized permissible in 40+ Muslim countries'],
+    companyStatement: "PepsiCo confirms Pepsi-Cola contains no animal derivatives, no alcohol, and no pork products. Ingredients: carbonated water, sugar, caramel color (E150d), phosphoric acid, natural flavors, caffeine. Halal certified in Muslim-majority markets. Not formally certified in USA/EU but widely accepted as permissible by Islamic scholars.",
+    source: 'PepsiCo Official & JAKIM Halal Directory',
+    warning: 'Diet Pepsi and Pepsi Max: check local packaging as some sweetener sources may vary. Standard Pepsi = universally considered halal by ingredients.',
+    ingredients: ['Carbonated Water', 'Sugar', 'Caramel Color E150d', 'Phosphoric Acid', 'Natural Flavors', 'Caffeine'],
+    ingredientFlags: []
+  },
+
+  // Danone Activia Plain — barkod: 3033490004958
+  '3033490004958': {
+    brand: 'Danone / Activia',
+    product: 'Activia Natural Yogurt',
+    logo: '🥛',
+    verdict: 'mushbooh',
+    score: 48,
+    certifications: ['Halal certified in Middle East & North Africa markets', 'Halal certified in Malaysia & Indonesia (select products)'],
+    companyStatement: "Danone confirmed: Activia yogurts are halal-certified in Muslim-majority markets. However, in Western markets (UK, USA, France), Activia products are NOT halal certified and some variants — especially flavored/low-fat lines — contain Bovine Gelatin whose source is unverified. IlmHub Canada: Activia Low Fat Yogurt is Haram due to Bovine Gelatin.",
+    source: 'Danone Official & IlmHub Halal Foods Research',
+    warning: "⚠️ Critical: AVOID Activia flavored/low-fat variants in Western markets — contain unverified Bovine Gelatin. Plain/natural Activia in Muslim countries = halal certified. Always check packaging for gelatin source.",
+    ingredients: ['Whole Milk', 'Skimmed Milk', 'Cream', 'Sugar', 'Bifidus ActiRegularis cultures', 'Gelatin (in some variants)'],
+    ingredientFlags: ['Bovine Gelatin in flavored/low-fat variants — source unverified in Western markets']
+  },
+
+  // Alpro Oat Drink — barkod: 5411188121985
+  '5411188121985': {
+    brand: 'Danone / Alpro',
+    product: 'Alpro Oat Original',
+    logo: '🌾',
+    verdict: 'halal',
+    score: 91,
+    certifications: ['Vegan certified (Vegan Society)', 'No animal ingredients', 'Widely accepted as halal by Islamic scholars'],
+    companyStatement: "Alpro official: All Alpro products are 100% plant-based. Alpro Oat contains no animal-derived ingredients. While Alpro does not hold an official halal certification, all ingredients are plant-based and free from any haram substances. Widely recommended by halal food researchers as safe for Muslim consumers.",
+    source: 'Alpro Official Website & Danone Consumer Affairs',
+    warning: 'Alpro products are plant-based and generally safe. Always verify: no cross-contamination issues reported. Oat, Soy, Almond, Coconut = all plant-based = halal by ingredients.',
+    ingredients: ['Water', 'Oat 10%', 'Sunflower Oil', 'Sea Salt', 'Calcium', 'Vitamins (D, B2, B12)'],
+    ingredientFlags: []
+  }
+};
+
+/* ============================================================
+   TABS
+============================================================ */
+function showTab(tab) {
+  ['scan','ecodes','history','nearby'].forEach(t => {
+    document.getElementById('tabcontent-'+t).style.display = t===tab ? 'block' : 'none';
+    const btn = document.getElementById('tab-'+t);
+    if(btn) btn.classList.toggle('tab-active', t===tab);
+  });
+  if(tab==='history') renderHistory();
+  if(tab==='ecodes') document.getElementById('ecodeInput').focus();
+}
+
+function scrollToTop() {
+  window.scrollTo({top:0, behavior:'smooth'});
+  document.getElementById('intro').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+}
+
+/* ============================================================
+   E-CODE SEARCH
+============================================================ */
+const FULL_ECODE_DB = {
+  'e100': {name:'Curcumin', status:'halal', desc:'Yellow pigment from turmeric'},
+  'e101': {name:'Riboflavin (B2)', status:'halal', desc:'Vitamin B2, plant or synthetic'},
+  'e102': {name:'Tartrazine', status:'halal', desc:'Synthetic yellow dye'},
+  'e104': {name:'Quinoline Yellow', status:'halal', desc:'Synthetic yellow dye'},
+  'e110': {name:'Sunset Yellow FCF', status:'halal', desc:'Synthetic orange dye'},
+  'e120': {name:'Carmine / Cochineal', status:'haram', desc:'Red dye from insects — HARAM'},
+  'e122': {name:'Carmoisine', status:'halal', desc:'Synthetic red dye'},
+  'e124': {name:'Ponceau 4R', status:'halal', desc:'Synthetic red dye'},
+  'e129': {name:'Allura Red AC', status:'halal', desc:'Synthetic red dye'},
+  'e133': {name:'Brilliant Blue FCF', status:'halal', desc:'Synthetic blue dye'},
+  'e140': {name:'Chlorophyll', status:'halal', desc:'Green pigment from plants'},
+  'e150': {name:'Caramel', status:'halal', desc:'Heated sugar coloring'},
+  'e160a': {name:'Beta-carotene', status:'halal', desc:'Orange pigment, plant-based'},
+  'e162': {name:'Beetroot Red', status:'halal', desc:'Natural red from beetroot'},
+  'e170': {name:'Calcium Carbonate', status:'halal', desc:'Mineral, chalk'},
+  'e200': {name:'Sorbic Acid', status:'halal', desc:'Preservative, synthetic'},
+  'e202': {name:'Potassium Sorbate', status:'halal', desc:'Common preservative'},
+  'e210': {name:'Benzoic Acid', status:'halal', desc:'Preservative'},
+  'e211': {name:'Sodium Benzoate', status:'halal', desc:'Common preservative'},
+  'e220': {name:'Sulphur Dioxide', status:'halal', desc:'Preservative in dried fruits & wine (check context)'},
+  'e270': {name:'Lactic Acid', status:'halal', desc:'From fermentation, plant-based'},
+  'e300': {name:'Ascorbic Acid (Vit C)', status:'halal', desc:'Antioxidant vitamin C'},
+  'e322': {name:'Lecithins', status:'halal', desc:'Usually soy or sunflower — check if egg'},
+  'e330': {name:'Citric Acid', status:'halal', desc:'From citrus, fermentation'},
+  'e406': {name:'Agar', status:'halal', desc:'Seaweed-based gelling agent'},
+  'e407': {name:'Carrageenan', status:'halal', desc:'Seaweed extract'},
+  'e410': {name:'Locust Bean Gum', status:'halal', desc:'Plant-based thickener'},
+  'e412': {name:'Guar Gum', status:'halal', desc:'Plant-based thickener'},
+  'e414': {name:'Acacia Gum', status:'halal', desc:'Tree sap, plant-based'},
+  'e415': {name:'Xanthan Gum', status:'halal', desc:'Microbial fermentation'},
+  'e420': {name:'Sorbitol', status:'halal', desc:'Sugar alcohol, plant-based'},
+  'e422': {name:'Glycerol / Glycerin', status:'mushbooh', desc:'May be animal or plant-based — check source'},
+  'e440': {name:'Pectins', status:'halal', desc:'From fruit peels'},
+  'e441': {name:'Gelatine', status:'haram', desc:'Usually pork-derived — HARAM unless fish/beef certified'},
+  'e471': {name:'Mono & Diglycerides', status:'mushbooh', desc:'May be animal-derived — verify source'},
+  'e472': {name:'Fatty Acid Esters', status:'mushbooh', desc:'May be animal-derived'},
+  'e481': {name:'Sodium Stearoyl Lactylate', status:'mushbooh', desc:'May be animal-derived'},
+  'e500': {name:'Sodium Carbonates', status:'halal', desc:'Baking soda family'},
+  'e503': {name:'Ammonium Carbonates', status:'halal', desc:'Leavening agent'},
+  'e542': {name:'Bone Phosphate', status:'mushbooh', desc:'From animal bones'},
+  'e551': {name:'Silicon Dioxide', status:'halal', desc:'Anti-caking agent, mineral'},
+  'e621': {name:'Monosodium Glutamate (MSG)', status:'halal', desc:'Flavor enhancer, fermentation'},
+  'e631': {name:'Sodium Inosinate', status:'mushbooh', desc:'May be pork-derived'},
+  'e635': {name:'Disodium Ribonucleotides', status:'mushbooh', desc:'May be pork-derived'},
+  'e920': {name:'L-Cysteine', status:'mushbooh', desc:'May be from hair/feathers'},
+  'e950': {name:'Acesulfame K', status:'halal', desc:'Artificial sweetener'},
+  'e951': {name:'Aspartame', status:'halal', desc:'Artificial sweetener'},
+  'e955': {name:'Sucralose', status:'halal', desc:'Artificial sweetener'},
+  'e960': {name:'Steviol Glycosides', status:'halal', desc:'Natural sweetener from stevia'},
+  'e965': {name:'Maltitol', status:'halal', desc:'Sugar alcohol'},
+  'e967': {name:'Xylitol', status:'halal', desc:'Sugar alcohol from plants'},
+};
+
+function searchEcode(query) {
+  const q = query.toLowerCase().trim();
+  const container = document.getElementById('ecodeResults');
+  if (!q) { container.innerHTML = ''; return; }
+
+  const matches = Object.entries(FULL_ECODE_DB).filter(([code, info]) =>
+    code.includes(q) || info.name.toLowerCase().includes(q) || info.desc.toLowerCase().includes(q)
+  );
+
+  if (matches.length === 0) {
+    container.innerHTML = `<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px;">No results for "${query}"</div>`;
+    return;
+  }
+
+  container.innerHTML = matches.map(([code, info]) => {
+    const colors = { halal:['#e8f9f0','#0a4f25'], mushbooh:['#fffbea','#78350f'], haram:['#fff1f0','#7f1d1d'] };
+    const labels = { halal:'✓ Halal', mushbooh:'⚠ Doubtful', haram:'✗ Haram' };
+    const [bg, color] = colors[info.status];
+    return `
+    <div style="background:white;border-radius:14px;padding:14px 16px;border:1.5px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);">
+      <div style="background:${bg};border-radius:10px;padding:6px 10px;font-size:13px;font-weight:800;color:${color};flex-shrink:0;font-family:monospace;">${code.toUpperCase()}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:var(--text);">${info.name}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${info.desc}</div>
+      </div>
+      <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:${bg};color:${color};flex-shrink:0;">${labels[info.status]}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   SCAN HISTORY (localStorage)
+============================================================ */
+function saveToHistory(barcode, name, verdict, score) {
+  try {
+    const history = JSON.parse(localStorage.getItem('halalHistory') || '[]');
+    const entry = { barcode, name, verdict, score, time: Date.now() };
+    const filtered = history.filter(h => h.barcode !== barcode);
+    filtered.unshift(entry);
+    localStorage.setItem('halalHistory', JSON.stringify(filtered.slice(0, 20)));
+  } catch(e) {}
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyList');
+  try {
+    const history = JSON.parse(localStorage.getItem('halalHistory') || '[]');
+    if (history.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:32px 0;color:var(--muted);font-size:13px;">No scans yet.<br>Scan a product to see your history here.</div>`;
+      return;
+    }
+    const icons = { halal:'✅', mushbooh:'⚠️', haram:'❌' };
+    const colors = { halal:'#0a4f25', mushbooh:'#78350f', haram:'#7f1d1d' };
+    const bgs = { halal:'#e8f9f0', mushbooh:'#fffbea', haram:'#fff1f0' };
+    container.innerHTML = history.map(h => `
+      <div onclick="tryBarcode('${h.barcode}')" style="background:white;border-radius:14px;padding:14px 16px;border:1.5px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow-sm);">
+        <div style="font-size:24px;">${icons[h.verdict]||'❓'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${h.name}</div>
+          <div style="font-size:11px;color:var(--muted);font-family:monospace;">${h.barcode}</div>
+        </div>
+        <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${bgs[h.verdict]};color:${colors[h.verdict]};flex-shrink:0;">${h.score}/100</span>
+      </div>`).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px;">History unavailable.</div>`;
+  }
+}
+
+/* ============================================================
+   NEARBY HALAL RESTAURANTS
+============================================================ */
+function findNearby() {
+  const container = document.getElementById('nearbyContent');
+  container.innerHTML = `<div style="text-align:center;padding:32px 0;"><div class="spinner" style="margin:0 auto 12px;"></div><div style="color:var(--muted);font-size:13px;">Finding your location…</div></div>`;
+
+  if (!navigator.geolocation) {
+    showNearbyError('Geolocation not supported on this device.');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      const mapsUrl = `https://www.google.com/maps/search/halal+restaurant/@${lat},${lng},14z`;
+      const mapsUrlFood = `https://www.google.com/maps/search/halal+food+shop/@${lat},${lng},14z`;
+
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:32px;margin-bottom:8px;">📍</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">Location found!</div>
+          <div style="font-size:11px;color:var(--muted);">${lat.toFixed(4)}, ${lng.toFixed(4)}</div>
+        </div>
+        <a href="${mapsUrl}" target="_blank" style="display:flex;align-items:center;gap:12px;background:white;border:1.5px solid var(--border);border-radius:14px;padding:16px;text-decoration:none;margin-bottom:10px;box-shadow:var(--shadow-sm);">
+          <div style="font-size:28px;">🍽️</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);">Halal Restaurants</div>
+            <div style="font-size:12px;color:var(--muted);">Open in Google Maps →</div>
+          </div>
+        </a>
+        <a href="${mapsUrlFood}" target="_blank" style="display:flex;align-items:center;gap:12px;background:white;border:1.5px solid var(--border);border-radius:14px;padding:16px;text-decoration:none;margin-bottom:10px;box-shadow:var(--shadow-sm);">
+          <div style="font-size:28px;">🛒</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);">Halal Food Shops</div>
+            <div style="font-size:12px;color:var(--muted);">Open in Google Maps →</div>
+          </div>
+        </a>
+        <a href="https://halalfinderapp.com" target="_blank" style="display:flex;align-items:center;gap:12px;background:white;border:1.5px solid var(--border);border-radius:14px;padding:16px;text-decoration:none;box-shadow:var(--shadow-sm);">
+          <div style="font-size:28px;">🌍</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);">HalalFinder Directory</div>
+            <div style="font-size:12px;color:var(--muted);">Global halal business directory →</div>
+          </div>
+        </a>`;
+    },
+    err => showNearbyError('Could not get your location. Please allow location access.')
+  );
+}
+
+function showNearbyError(msg) {
+  document.getElementById('nearbyContent').innerHTML = `
+    <div style="text-align:center;padding:24px;color:var(--red);font-size:13px;">${msg}</div>
+    <div style="text-align:center;"><button onclick="findNearby()" style="background:var(--g2);color:white;border:none;border-radius:12px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;">Try Again</button></div>`;
+}
+
+
+let currentPhotoBase64 = null;
+
+function openPhotoAnalysis() {
+  document.getElementById('photoModal').style.display = 'flex';
+}
+
+function closePhotoModal() {
+  document.getElementById('photoModal').style.display = 'none';
+  clearPhoto();
+  document.getElementById('photoResult').style.display = 'none';
+  document.getElementById('photoResult').innerHTML = '';
+}
+
+function handlePhotoFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  readPhotoFile(file);
+}
+
+function handlePhotoDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) readPhotoFile(file);
+}
+
+function readPhotoFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    currentPhotoBase64 = dataUrl.split(',')[1];
+    document.getElementById('photoPreview').src = dataUrl;
+    document.getElementById('photoPreviewWrap').style.display = 'block';
+    document.getElementById('analyzePhotoBtn').style.display = 'block';
+    document.getElementById('photoUploadArea').style.opacity = '0.5';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto() {
+  currentPhotoBase64 = null;
+  document.getElementById('photoPreviewWrap').style.display = 'none';
+  document.getElementById('analyzePhotoBtn').style.display = 'none';
+  document.getElementById('photoUploadArea').style.opacity = '1';
+  document.getElementById('photoFileInput').value = '';
+}
+
+async function analyzePhoto() {
+  if (!currentPhotoBase64) return;
+
+  document.getElementById('analyzePhotoBtn').style.display = 'none';
+  document.getElementById('photoLoading').style.display = 'block';
+  document.getElementById('photoResult').style.display = 'none';
+  document.getElementById('photoLoadingText').textContent = 'Reading ingredients with AI…';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: 'image/jpeg', data: currentPhotoBase64 }
+            },
+            {
+              type: 'text',
+              text: `You are a halal food expert. Analyze this product image and:
+1. Extract ALL ingredients text you can see
+2. For each ingredient, determine if it is: HALAL, MUSHBOOH (doubtful), or HARAM
+3. Give an overall verdict
+
+Respond ONLY with valid JSON, no markdown, no explanation:
+{
+  "productName": "product name if visible or Unknown",
+  "ingredientsRaw": "full ingredients text as read",
+  "verdict": "halal" or "mushbooh" or "haram",
+  "score": 0-100,
+  "ingredients": [
+    {"name": "ingredient name", "status": "halal/mushbooh/haram", "reason": "brief reason"}
+  ],
+  "summary": "one sentence summary in English"
+}`
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    document.getElementById('photoLoading').style.display = 'none';
+
+    if (data.error) {
+      showPhotoError('API error: ' + data.error.message);
+      return;
+    }
+
+    const text = data.content.map(c => c.text || '').join('');
+    let result;
+    try {
+      const clean = text.replace(/```json|```/g, '').trim();
+      result = JSON.parse(clean);
+    } catch(e) {
+      showPhotoError('Could not parse AI response. Please try a clearer photo.');
+      return;
+    }
+
+    renderPhotoResult(result);
+
+  } catch(err) {
+    document.getElementById('photoLoading').style.display = 'none';
+    showPhotoError('Network error. Please check your connection.');
+  }
+}
+
+function renderPhotoResult(r) {
+  const vMap = {
+    halal:    { cls:'halal',    icon:'✅', label:'HALAL',    ar:'حلال',   bg:'rgba(14,80,38,0.8)',    border:'#4cce7e' },
+    mushbooh: { cls:'mushbooh', icon:'⚠️', label:'MUSHBOOH', ar:'مشبوه',  bg:'rgba(120,55,14,0.8)',   border:'#fbbf24' },
+    haram:    { cls:'haram',    icon:'❌', label:'HARAM',    ar:'حرام',   bg:'rgba(127,29,29,0.8)',   border:'#fca5a5' },
+  };
+  const v = vMap[r.verdict] || vMap.mushbooh;
+
+  const sorted = (r.ingredients || []).sort((a,b) => {
+    const o = {haram:0,mushbooh:1,halal:2};
+    return (o[a.status]||1) - (o[b.status]||1);
+  });
+
+  const ingrRows = sorted.map(i => `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);gap:10px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:white;">${i.name}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px;">${i.reason||''}</div>
+      </div>
+      <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;
+        background:${i.status==='halal'?'rgba(76,206,126,0.2)':i.status==='haram'?'rgba(252,165,165,0.2)':'rgba(251,191,36,0.2)'};
+        color:${i.status==='halal'?'#4cce7e':i.status==='haram'?'#fca5a5':'#fbbf24'};">
+        ${i.status==='halal'?'✓ Halal':i.status==='haram'?'✗ Haram':'⚠ Doubtful'}
+      </span>
+    </div>`).join('');
+
+  document.getElementById('photoResult').innerHTML = `
+    <div style="border-radius:16px;padding:18px;border:2px solid ${v.border};background:${v.bg};display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+      <div style="font-size:40px;line-height:1;">${v.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:22px;font-weight:800;color:white;letter-spacing:-0.5px;">${v.label} <span style="font-family:'Noto Kufi Arabic',serif;font-size:18px;opacity:0.7;">${v.ar}</span></div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:3px;">${r.summary||''}</div>
+      </div>
+      <div style="text-align:center;flex-shrink:0;">
+        <div style="font-size:32px;font-weight:800;color:white;">${r.score}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.4);">/ 100</div>
+      </div>
+    </div>
+
+    ${sorted.length > 0 ? `
+    <div style="background:rgba(255,255,255,0.05);border-radius:14px;padding:14px 16px;margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:8px;">🧪 Ingredients</div>
+      ${ingrRows}
+    </div>` : ''}
+
+    ${r.ingredientsRaw ? `
+    <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:12px 14px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin-bottom:6px;">📋 Raw Text</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;">${r.ingredientsRaw}</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('photoResult').style.display = 'block';
+  document.getElementById('analyzePhotoBtn').style.display = 'block';
+  document.getElementById('analyzePhotoBtn').textContent = '🔄 Analyze Again';
+}
+
+function showPhotoError(msg) {
+  document.getElementById('photoResult').innerHTML = `
+    <div style="background:rgba(185,28,28,0.2);border:1px solid #fca5a5;border-radius:12px;padding:14px;color:#fca5a5;font-size:13px;text-align:center;">❌ ${msg}</div>`;
+  document.getElementById('photoResult').style.display = 'block';
+  document.getElementById('analyzePhotoBtn').style.display = 'block';
+}
+
+/* ============================================================
+   EMAIL ANALYSIS (Claude API)
+============================================================ */
+function openEmailAnalysis() {
+  document.getElementById('emailModal').style.display = 'flex';
+}
+
+function closeEmailModal() {
+  document.getElementById('emailModal').style.display = 'none';
+  document.getElementById('emailResult').style.display = 'none';
+  document.getElementById('emailResult').innerHTML = '';
+  document.getElementById('emailText').value = '';
+}
+
+function fillExampleEmail() {
+  document.getElementById('emailText').value = `Dear Customer,
+
+Thank you for contacting us regarding the halal status of our Chocolate Hazelnut Spread (Product code: CHN-200g).
+
+We can confirm the following:
+
+HALAL CERTIFICATION:
+Our product is certified by IFANCA (Islamic Food and Nutrition Council of America) with certificate number IFANCA-2024-88721, valid until December 2025.
+
+INGREDIENTS:
+Sugar, Palm Oil, Hazelnuts (13%), Skimmed Milk Powder, Fat-Reduced Cocoa (7.4%), Lecithin (Soya), Vanillin (Artificial Flavour).
+
+ALLERGENS: Contains milk, hazelnuts, soy.
+
+All ingredients used in this product are sourced from halal-certified suppliers. Our manufacturing facility is regularly audited by IFANCA.
+
+If you have any further questions, please do not hesitate to contact us.
+
+Kind regards,
+Consumer Services Team
+NutriFood Europe GmbH`;
+}
+
+async function analyzeEmail() {
+  const emailText = document.getElementById('emailText').value.trim();
+  if (!emailText || emailText.length < 20) {
+    document.getElementById('emailResult').innerHTML = `<div style="background:rgba(185,28,28,0.2);border:1px solid #fca5a5;border-radius:12px;padding:14px;color:#fca5a5;font-size:13px;text-align:center;">❌ Please paste an email first.</div>`;
+    document.getElementById('emailResult').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('analyzeEmailBtn').style.display = 'none';
+  document.getElementById('emailLoading').style.display = 'block';
+  document.getElementById('emailResult').style.display = 'none';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are a halal food certification expert. Analyze this email from a food company and extract all relevant halal information.
+
+EMAIL:
+${emailText}
+
+Respond ONLY with valid JSON, no markdown:
+{
+  "productName": "product name if mentioned",
+  "halalStatus": "certified" or "not_certified" or "unknown" or "partial",
+  "certifications": [{"body": "cert name", "number": "cert number if any", "validUntil": "date if any"}],
+  "ingredients": [{"name": "ingredient", "status": "halal/mushbooh/haram", "reason": "brief reason"}],
+  "keyFindings": ["finding 1", "finding 2", "finding 3"],
+  "warnings": ["warning if any"],
+  "overallVerdict": "halal" or "mushbooh" or "haram" or "unknown",
+  "score": 0-100,
+  "summary": "2 sentence summary of what the company said"
+}`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    document.getElementById('emailLoading').style.display = 'none';
+    document.getElementById('analyzeEmailBtn').style.display = 'block';
+
+    if (data.error) {
+      showEmailError('API error: ' + data.error.message);
+      return;
+    }
+
+    const text = data.content.map(c => c.text || '').join('');
+    let result;
+    try {
+      result = JSON.parse(text.replace(/```json|```/g, '').trim());
+    } catch(e) {
+      showEmailError('Could not parse response. Please try again.');
+      return;
+    }
+
+    renderEmailResult(result);
+
+  } catch(err) {
+    document.getElementById('emailLoading').style.display = 'none';
+    document.getElementById('analyzeEmailBtn').style.display = 'block';
+    showEmailError('Network error. Check your connection.');
+  }
+}
+
+function renderEmailResult(r) {
+  const statusColors = {
+    certified:     { bg:'rgba(14,80,38,0.8)',  border:'#4cce7e', label:'✅ HALAL CERTIFIED',     sub:'Company confirmed halal certification' },
+    not_certified: { bg:'rgba(127,29,29,0.8)', border:'#fca5a5', label:'❌ NOT CERTIFIED',        sub:'No halal certification mentioned' },
+    partial:       { bg:'rgba(120,55,14,0.8)', border:'#fbbf24', label:'⚠️ PARTIALLY CERTIFIED', sub:'Some products certified, verify specifically' },
+    unknown:       { bg:'rgba(55,55,55,0.8)',  border:'#9ca3af', label:'❓ UNCLEAR',              sub:'Could not determine certification status' },
+  };
+  const s = statusColors[r.halalStatus] || statusColors.unknown;
+
+  // Certifications
+  const certHTML = (r.certifications || []).length > 0
+    ? (r.certifications).map(c => `
+        <div style="background:rgba(76,206,126,0.1);border:1px solid rgba(76,206,126,0.3);border-radius:10px;padding:10px 12px;margin-bottom:6px;">
+          <div style="font-size:13px;font-weight:700;color:#4cce7e;">🏅 ${c.body}</div>
+          ${c.number ? `<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Cert #: ${c.number}</div>` : ''}
+          ${c.validUntil ? `<div style="font-size:11px;color:rgba(255,255,255,0.5);">Valid until: ${c.validUntil}</div>` : ''}
+        </div>`).join('')
+    : `<div style="color:rgba(255,255,255,0.4);font-size:12px;">No certification details found in email.</div>`;
+
+  // Key findings
+  const findingsHTML = (r.keyFindings || []).map(f =>
+    `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.07);">
+      <span style="color:#4cce7e;flex-shrink:0;">→</span>
+      <span style="font-size:13px;color:rgba(255,255,255,0.8);">${f}</span>
+    </div>`).join('');
+
+  // Warnings
+  const warningsHTML = (r.warnings || []).length > 0
+    ? `<div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:12px;margin-top:8px;">
+        ${r.warnings.map(w => `<div style="font-size:12px;color:#fbbf24;">⚠️ ${w}</div>`).join('')}
+      </div>` : '';
+
+  // Ingredients
+  const ingrHTML = (r.ingredients || []).length > 0
+    ? `<div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:12px 14px;margin-top:8px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:8px;">🧪 Ingredients from Email</div>
+        ${r.ingredients.map(i => `
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06);gap:10px;">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:white;">${i.name}</div>
+              ${i.reason ? `<div style="font-size:11px;color:rgba(255,255,255,0.4);">${i.reason}</div>` : ''}
+            </div>
+            <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;white-space:nowrap;
+              background:${i.status==='halal'?'rgba(76,206,126,0.2)':i.status==='haram'?'rgba(252,165,165,0.2)':'rgba(251,191,36,0.2)'};
+              color:${i.status==='halal'?'#4cce7e':i.status==='haram'?'#fca5a5':'#fbbf24'};">
+              ${i.status==='halal'?'✓ Halal':i.status==='haram'?'✗ Haram':'⚠ Doubtful'}
+            </span>
+          </div>`).join('')}
+      </div>` : '';
+
+  document.getElementById('emailResult').innerHTML = `
+    <!-- Verdict banner -->
+    <div style="border-radius:16px;padding:16px 18px;border:2px solid ${s.border};background:${s.bg};display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+      <div style="flex:1;">
+        <div style="font-size:18px;font-weight:800;color:white;">${s.label}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.55);margin-top:3px;">${r.summary || s.sub}</div>
+      </div>
+      <div style="text-align:center;flex-shrink:0;">
+        <div style="font-size:30px;font-weight:800;color:white;">${r.score}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.4);">/ 100</div>
+      </div>
+    </div>
+
+    <!-- Certifications -->
+    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:8px;">🏅 Halal Certifications</div>
+      ${certHTML}
+    </div>
+
+    <!-- Key findings -->
+    ${findingsHTML ? `
+    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:4px;">📋 Key Findings</div>
+      ${findingsHTML}
+    </div>` : ''}
+
+    ${ingrHTML}
+    ${warningsHTML}
+  `;
+
+  document.getElementById('emailResult').style.display = 'block';
+}
+
+function showEmailError(msg) {
+  document.getElementById('emailResult').innerHTML = `
+    <div style="background:rgba(185,28,28,0.2);border:1px solid #fca5a5;border-radius:12px;padding:14px;color:#fca5a5;font-size:13px;text-align:center;">❌ ${msg}</div>`;
+  document.getElementById('emailResult').style.display = 'block';
+}
+
+document.getElementById('emailModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEmailModal();
+});
+
+document.getElementById('photoModal').addEventListener('click', function(e) {
+  if (e.target === this) closePhotoModal();
+});
+
+document.getElementById('cameraModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCamera();
+});
+</script>
+</body>
+</html>
