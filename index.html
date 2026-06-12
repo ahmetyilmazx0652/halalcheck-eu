@@ -485,7 +485,7 @@ window.FB_loadProducts = async function () {
     var out = {};
     snapshot.forEach(function (doc) {
       var data = doc.data() || {};
-      // Test aşaması: passive olanlar da dahil — hepsi getiriliyor.
+      if (data.passive === true) return;
       var key = data.barcode || doc.id;
       if (!key) return;
       out[String(key)] = data;
