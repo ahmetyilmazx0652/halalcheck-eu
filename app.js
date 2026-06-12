@@ -2354,7 +2354,7 @@ Sadece JSON ile yanıtla, markdown veya açıklama ekleme:
     document.getElementById('photoLoading').style.display = 'none';
 
     if (data.error) {
-      showPhotoError('API error: ' + data.error.message);
+      showPhotoError('Fotoğraf okunamadı. Lütfen etiketi daha net ve yakın çekerek tekrar deneyin.');
       return;
     }
 
@@ -2364,7 +2364,7 @@ Sadece JSON ile yanıtla, markdown veya açıklama ekleme:
       const clean = text.replace(/```json|```/g, '').trim();
       result = JSON.parse(clean);
     } catch(e) {
-      showPhotoError('Could not parse AI response. Please try a clearer photo.');
+      showPhotoError('Fotoğraf okunamadı. Lütfen etiketi daha net ve yakın çekerek tekrar deneyin.');
       return;
     }
 
@@ -2372,7 +2372,7 @@ Sadece JSON ile yanıtla, markdown veya açıklama ekleme:
 
   } catch(err) {
     document.getElementById('photoLoading').style.display = 'none';
-    showPhotoError('Network error. Please check your connection.');
+    showPhotoError('Fotoğraf okunamadı. Lütfen etiketi daha net ve yakın çekerek tekrar deneyin.');
   }
 }
 
