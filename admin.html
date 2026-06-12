@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BarcodeHalal · Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens (mevcut uygulamayla birebir) ─────────────────── */
+:root {
+  --g1: #091a0f; --g2: #165c30; --g3: #22a152; --g4: #4cce7e;
+  --gold: #d4a535; --gold2: #f0cc68;
+  --cream: #f7f3ea; --surface: #ffffff;
+  --border: #d5e6db; --text: #0d1f14; --muted: #5e7268;
+  --red: #b91c1c; --amber: #b45309;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.10);
+  --r-sm: 12px; --r-md: 18px; --r-lg: 24px; --r-xl: 32px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Outfit',sans-serif; background:var(--cream); color:var(--text); min-height:100vh; }
+
+/* ── Topbar ─────────────────────────────────────────────────────── */
+.topbar {
+  position:sticky; top:0; z-index:100; background:var(--g1);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; height:56px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.topbar-logo { font-size:18px; font-weight:800; color:white; letter-spacing:-0.5px; }
+.topbar-logo span { color:var(--g4); font-size:12px; font-weight:600;
+  background:rgba(76,206,126,0.15); border:1px solid rgba(76,206,126,0.3);
+  padding:3px 8px; border-radius:20px; margin-left:8px; vertical-align:middle; }
+.topbar-user { display:flex; align-items:center; gap:10px; }
+.topbar-email { color:rgba(255,255,255,0.55); font-size:12px; }
+.btn-signout {
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.7); font-size:12px; font-weight:600;
+  padding:5px 12px; border-radius:8px; cursor:pointer; font-family:'Outfit',sans-serif;
+  transition:all 0.15s;
+}
+.btn-signout:hover { background:rgba(255,255,255,0.15); color:white; }
+
+/* ── Layout ─────────────────────────────────────────────────────── */
+.admin-layout { display:flex; min-height:calc(100vh - 56px); }
+
+/* ── Sidebar ────────────────────────────────────────────────────── */
+.sidebar {
+  width:220px; flex-shrink:0; background:white;
+  border-right:1.5px solid var(--border);
+  padding:20px 0; position:sticky; top:56px;
+  height:calc(100vh - 56px); overflow-y:auto;
+}
+.nav-section { padding:0 12px; margin-bottom:8px; }
+.nav-label { font-size:10px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:1px; padding:0 8px; margin-bottom:6px; }
+.nav-item {
+  display:flex; align-items:center; gap:10px; width:100%;
+  padding:10px 12px; border-radius:var(--r-sm); border:none; background:transparent;
+  color:var(--text); font-size:13px; font-weight:500; cursor:pointer;
+  font-family:'Outfit',sans-serif; text-align:left; transition:all 0.15s;
+}
+.nav-item:hover { background:#f0f6f2; }
+.nav-item.active { background:linear-gradient(135deg,#e8f9f0,#d0f2e0); color:var(--g2); font-weight:700; }
+.nav-item .icon { font-size:16px; flex-shrink:0; }
+.nav-badge {
+  margin-left:auto; background:var(--g3); color:white;
+  font-size:10px; font-weight:700; padding:2px 6px; border-radius:20px; min-width:18px; text-align:center;
+}
+
+/* ── Main area ──────────────────────────────────────────────────── */
+.main { flex:1; padding:24px; max-width:960px; }
+
+/* ── Card ───────────────────────────────────────────────────────── */
+.card {
+  background:white; border-radius:var(--r-lg);
+  padding:20px; border:1.5px solid var(--border);
+  box-shadow:var(--shadow-sm); margin-bottom:16px;
+}
+.card-title {
+  font-size:11px; font-weight:700; text-transform:uppercase;
+  letter-spacing:1px; color:var(--muted); margin-bottom:16px;
+  display:flex; align-items:center; gap:7px;
+}
+.page-title { font-size:22px; font-weight:800; color:var(--text); margin-bottom:4px; }
+.page-sub { font-size:13px; color:var(--muted); margin-bottom:20px; }
+
+/* ── Search bar ─────────────────────────────────────────────────── */
+.search-row { display:flex; gap:10px; margin-bottom:16px; }
+.search-input {
+  flex:1; border:1.5px solid var(--border); border-radius:var(--r-sm);
+  padding:10px 14px; font-size:14px; font-family:'Outfit',sans-serif;
+  color:var(--text); outline:none; background:white; transition:border-color 0.15s;
+}
+.search-input:focus { border-color:var(--g3); }
+.search-input::placeholder { color:#b8c8bf; }
+
+/* ── Buttons ────────────────────────────────────────────────────── */
+.btn {
+  border:none; border-radius:var(--r-sm); padding:10px 18px;
+  font-family:'Outfit',sans-serif; font-size:13px; font-weight:700;
+  cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px;
+}
+.btn-primary { background:linear-gradient(135deg,var(--g2),var(--g3)); color:white; }
+.btn-primary:hover { box-shadow:0 4px 16px rgba(34,161,82,0.35); transform:translateY(-1px); }
+.btn-danger  { background:#fff1f0; color:var(--red); border:1.5px solid #fca5a5; }
+.btn-danger:hover { background:#fee2e2; }
+.btn-ghost   { background:#f0f6f2; color:var(--g2); border:1.5px solid var(--border); }
+.btn-ghost:hover { background:#e0f0e8; }
+.btn:disabled { opacity:0.5; cursor:not-allowed; transform:none !important; }
+
+/* ── Table ──────────────────────────────────────────────────────── */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th {
+  text-align:left; padding:10px 12px; font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.5px; color:var(--muted);
+  border-bottom:2px solid var(--border); white-space:nowrap;
+}
+td { padding:11px 12px; border-bottom:1px solid #f0f6f2; vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#fafffe; }
+.td-barcode { font-family:monospace; font-size:12px; color:var(--muted); }
+.td-product { font-weight:600; max-width:200px; }
+.td-product small { display:block; font-weight:400; color:var(--muted); font-size:11px; margin-top:1px; }
+
+/* ── Verdict badges ─────────────────────────────────────────────── */
+.vbadge {
+  font-size:11px; font-weight:700; padding:3px 10px;
+  border-radius:20px; white-space:nowrap; display:inline-block;
+}
+.vbadge.halal    { background:#e8f9f0; color:#0a4f25; }
+.vbadge.haram    { background:#fff1f0; color:#7f1d1d; }
+.vbadge.mushbooh { background:#fffbea; color:#78350f; }
+.vbadge.passive  { background:#f3f4f6; color:#6b7280; }
+.vbadge.pending  { background:#fff7ed; color:#9a3412; }
+.vbadge.reviewed { background:#e8f9f0; color:#0a4f25; }
+.vbadge.rejected { background:#fff1f0; color:#7f1d1d; }
+
+/* ── Form ───────────────────────────────────────────────────────── */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.form-grid.full { grid-template-columns:1fr; }
+.form-field { display:flex; flex-direction:column; gap:5px; }
+.form-field label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+.form-field input,
+.form-field select,
+.form-field textarea {
+  border:1.5px solid var(--border); border-radius:var(--r-sm);
+  padding:9px 12px; font-size:13px; font-family:'Outfit',sans-serif;
+  color:var(--text); outline:none; background:white; transition:border-color 0.15s;
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus { border-color:var(--g3); }
+.form-field textarea { resize:vertical; min-height:80px; }
+.form-actions { display:flex; gap:10px; margin-top:4px; }
+
+/* ── Stats row ──────────────────────────────────────────────────── */
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+.stat-card {
+  background:white; border-radius:var(--r-lg); padding:16px 18px;
+  border:1.5px solid var(--border); box-shadow:var(--shadow-sm);
+}
+.stat-val { font-size:28px; font-weight:800; color:var(--text); line-height:1; }
+.stat-label { font-size:11px; color:var(--muted); margin-top:4px; }
+
+/* ── Notification card ──────────────────────────────────────────── */
+.notif-item {
+  border:1.5px solid var(--border); border-radius:var(--r-md);
+  padding:14px 16px; margin-bottom:10px; background:white;
+}
+.notif-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.notif-barcode { font-family:monospace; font-size:12px; color:var(--muted); }
+.notif-time { font-size:11px; color:var(--muted); }
+.notif-type { font-size:12px; font-weight:700; color:var(--g2);
+  background:#e8f9f0; padding:2px 8px; border-radius:20px; }
+.notif-body { font-size:13px; color:var(--text); line-height:1.5; }
+.notif-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.notif-tag { font-size:11px; color:var(--muted); background:#f0f6f2;
+  padding:2px 8px; border-radius:20px; }
+
+/* ── Empty state ────────────────────────────────────────────────── */
+.empty { text-align:center; padding:40px 20px; color:var(--muted); }
+.empty .icon { font-size:36px; margin-bottom:10px; }
+.empty p { font-size:14px; }
+
+/* ── Toast ──────────────────────────────────────────────────────── */
+.toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+  background:var(--g1); color:white; padding:12px 20px;
+  border-radius:var(--r-md); font-size:13px; font-weight:600;
+  box-shadow:var(--shadow-md); z-index:9999; pointer-events:none;
+  opacity:0; transition:opacity 0.2s;
+}
+.toast.show { opacity:1; }
+
+/* ── Modal ──────────────────────────────────────────────────────── */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.4); z-index:500;
+  align-items:center; justify-content:center; padding:20px;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:white; border-radius:var(--r-xl); padding:28px;
+  width:100%; max-width:560px; max-height:90vh; overflow-y:auto;
+  box-shadow:0 24px 64px rgba(0,0,0,0.18);
+}
+.modal-title { font-size:18px; font-weight:800; margin-bottom:20px; color:var(--text); }
+
+/* ── Login screen ───────────────────────────────────────────────── */
+#loginScreen {
+  display:none; min-height:100vh;
+  background:linear-gradient(165deg,var(--g1) 0%,#0f3d22 45%,#1a6b3a 100%);
+  align-items:center; justify-content:center;
+}
+#loginScreen.active { display:flex; }
+.login-box {
+  background:white; border-radius:var(--r-xl); padding:36px;
+  width:100%; max-width:380px; box-shadow:0 24px 64px rgba(0,0,0,0.25);
+}
+.login-logo { font-size:22px; font-weight:800; color:var(--g1); margin-bottom:6px; }
+.login-logo span { color:var(--g3); }
+.login-sub { font-size:13px; color:var(--muted); margin-bottom:28px; }
+.login-error {
+  display:none; background:#fff1f0; border:1px solid #fca5a5;
+  border-radius:var(--r-sm); padding:10px 14px;
+  color:var(--red); font-size:13px; margin-bottom:14px;
+}
+.login-error.show { display:block; }
+
+/* ── Firebase hazır değil uyarısı ──────────────────────────────── */
+.fb-warning {
+  background:#fffbea; border:1.5px solid #fbbf24;
+  border-radius:var(--r-md); padding:14px 16px;
+  color:var(--amber); font-size:13px; margin-bottom:16px; display:none;
+}
+.fb-warning.show { display:block; }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width:640px) {
+  .sidebar { display:none; }
+  .form-grid { grid-template-columns:1fr; }
+  .stats-row { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Firebase SDK'ları (firebase.js ile aynı versiyon) ──────── -->
+<!-- firebase.js ile aynı CDN versiyonu, sadece admin için inline yükleniyor -->
+<!-- firebase.js'deki config'i kullanmak yerine admin kendi config'ini yükler -->
+
+<!-- ── Login ekranı ─────────────────────────────────────────────── -->
+<div id="loginScreen" class="active">
+  <div class="login-box">
+    <div class="login-logo">BarcodeHalal<span> Admin</span></div>
+    <p class="login-sub">Yönetim paneline erişmek için giriş yapın.</p>
+    <div id="fbWarningLogin" class="fb-warning">
+      ⚠️ Firebase henüz yapılandırılmadı. <code>firebase.js</code> içindeki
+      <code>FIREBASE_CONFIG</code> alanlarını doldurun.
+    </div>
+    <div id="loginError" class="login-error">Hatalı e-posta veya şifre.</div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>E-posta</label>
+      <input type="email" id="loginEmail" placeholder="admin@example.com" autocomplete="email">
+    </div>
+    <div class="form-field" style="margin-bottom:20px;">
+      <label>Şifre</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doSignIn()">
+      Giriş Yap
+    </button>
+  </div>
+</div>
+
+<!-- ── Admin paneli ─────────────────────────────────────────────── -->
+<div id="adminApp" style="display:none;">
+
+  <header class="topbar">
+    <div class="topbar-logo">BarcodeHalal <span>Admin</span></div>
+    <div class="topbar-user">
+      <span class="topbar-email" id="adminEmail"></span>
+      <button class="btn-signout" onclick="doSignOut()">Çıkış</button>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="nav-section">
+        <div class="nav-label">Genel</div>
+        <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)">
+          <span class="icon">📊</span> Dashboard
+        </button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Ürünler</div>
+        <button class="nav-item" data-page="products" onclick="showPage('products',this)">
+          <span class="icon">🔍</span> Ürün Ara
+        </button>
+        <button class="nav-item" data-page="add-product" onclick="showPage('add-product',this)">
+          <span class="icon">➕</span> Yeni Ürün Ekle
+        </button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Kullanıcı</div>
+        <button class="nav-item" data-page="reports" onclick="showPage('reports',this)">
+          <span class="icon">📬</span> Bildirimler
+          <span class="nav-badge" id="reportBadge">0</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- Firebase uyarısı -->
+      <div id="fbWarningMain" class="fb-warning">
+        ⚠️ Firebase bağlantısı yok. Firestore'a bağlanmak için
+        <strong>firebase.js</strong> içindeki <code>FIREBASE_CONFIG</code>
+        alanlarını doldurun. Şu an yalnızca yerel veriler görüntüleniyor.
+      </div>
+
+      <!-- ── Dashboard ─────────────────────────────────────────── -->
+      <div id="page-dashboard">
+        <p class="page-title">Dashboard</p>
+        <p class="page-sub">Yerel veritabanı özeti</p>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-val" id="statTotal">—</div>
+            <div class="stat-label">Toplam ürün</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="statHalal" style="color:var(--g3);">—</div>
+            <div class="stat-label">Helal</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="statHaram" style="color:var(--red);">—</div>
+            <div class="stat-label">Haram</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📦 Veri Kaynakları</div>
+          <div id="sourceBreakdown" style="font-size:13px;color:var(--muted);line-height:2;">
+            Hesaplanıyor…
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">ℹ️ Sistem Durumu</div>
+          <div id="systemStatus" style="font-size:13px;line-height:2;">—</div>
+        </div>
+      </div>
+
+      <!-- ── Ürün Ara ──────────────────────────────────────────── -->
+      <div id="page-products" style="display:none;">
+        <p class="page-title">Ürün Ara</p>
+        <p class="page-sub">Yerel veritabanında barkod, ürün adı veya marka ile arayın.</p>
+        <div class="search-row">
+          <input class="search-input" id="productSearch"
+            placeholder="Barkod, ürün adı veya marka…"
+            oninput="searchProducts(this.value)">
+          <button class="btn btn-primary" onclick="searchProducts(document.getElementById('productSearch').value)">
+            🔍 Ara
+          </button>
+        </div>
+        <div id="searchResults"></div>
+      </div>
+
+      <!-- ── Yeni Ürün Ekle ────────────────────────────────────── -->
+      <div id="page-add-product" style="display:none;">
+        <p class="page-title">Yeni Ürün Ekle</p>
+        <p class="page-sub">Firestore'a yeni ürün kaydı ekle. Firebase bağlantısı gereklidir.</p>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-field">
+              <label>Barkod *</label>
+              <input type="text" id="np-barcode" placeholder="4000521027582" inputmode="numeric">
+            </div>
+            <div class="form-field">
+              <label>Ürün Adı *</label>
+              <input type="text" id="np-product" placeholder="Nutella 400g">
+            </div>
+            <div class="form-field">
+              <label>Marka</label>
+              <input type="text" id="np-brand" placeholder="Ferrero">
+            </div>
+            <div class="form-field">
+              <label>Mağaza</label>
+              <input type="text" id="np-store" placeholder="Lidl, Rewe, dm…">
+            </div>
+            <div class="form-field">
+              <label>Karar *</label>
+              <select id="np-verdict">
+                <option value="halal">✅ Helal</option>
+                <option value="haram">❌ Haram</option>
+                <option value="mushbooh">⚠️ Mushbooh (Şüpheli)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Skor (0–100)</label>
+              <input type="number" id="np-score" placeholder="90" min="0" max="100">
+            </div>
+            <div class="form-field">
+              <label>Logo / Emoji</label>
+              <input type="text" id="np-logo" placeholder="🛒">
+            </div>
+            <div class="form-field">
+              <label>Kategori</label>
+              <select id="np-category">
+                <option value="Food">Gıda</option>
+                <option value="Drink">İçecek</option>
+                <option value="Medicine">İlaç / Vitamin</option>
+                <option value="Other">Diğer</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid full" style="margin-top:14px;">
+            <div class="form-field">
+              <label>Sertifikasyonlar (her satıra bir tane)</label>
+              <textarea id="np-certs" placeholder="HalalCheck.net — Üretici onaylı&#10;LPPOM MUI — Indonesia"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Üretici Açıklaması / Kaynak</label>
+              <textarea id="np-statement" placeholder="Üreticinin resmi açıklaması veya kaynak metni…"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Kaynak</label>
+              <input type="text" id="np-source" placeholder="HalalCheck.net — FirmaAdı (2025)">
+            </div>
+            <div class="form-field">
+              <label>Uyarı Mesajı</label>
+              <input type="text" id="np-warning" placeholder="⚠️ Bazı çeşitler şüpheli içerik barındırabilir.">
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:20px;">
+            <button class="btn btn-primary" onclick="addProduct()">
+              💾 Firestore'a Kaydet
+            </button>
+            <button class="btn btn-ghost" onclick="clearProductForm()">
+              Temizle
+            </button>
+          </div>
+          <p id="addProductStatus" style="font-size:13px;color:var(--muted);margin-top:10px;"></p>
+        </div>
+      </div>
+
+      <!-- ── Bildirimler ───────────────────────────────────────── -->
+      <div id="page-reports" style="display:none;">
+        <p class="page-title">Kullanıcı Bildirimleri</p>
+        <p class="page-sub">Kullanıcıların formspree üzerinden gönderdiği bildirimler. Firestore bağlandığında burada görünecek.</p>
+        <div id="reportsList">
+          <div class="empty">
+            <div class="icon">📬</div>
+            <p>Firebase bağlantısı kurulduğunda bildirimler burada listelenir.</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- .admin-layout -->
+</div><!-- #adminApp -->
+
+<!-- ── Düzenle modal ─────────────────────────────────────────────── -->
+<div id="editModal" class="modal-overlay" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal-box">
+    <p class="modal-title">✏️ Ürün Düzenle</p>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Barkod</label>
+        <input type="text" id="ep-barcode" readonly style="background:#f9fafb;color:var(--muted);">
+      </div>
+      <div class="form-field">
+        <label>Ürün Adı</label>
+        <input type="text" id="ep-product">
+      </div>
+      <div class="form-field">
+        <label>Marka</label>
+        <input type="text" id="ep-brand">
+      </div>
+      <div class="form-field">
+        <label>Mağaza</label>
+        <input type="text" id="ep-store">
+      </div>
+      <div class="form-field">
+        <label>Karar</label>
+        <select id="ep-verdict">
+          <option value="halal">✅ Helal</option>
+          <option value="haram">❌ Haram</option>
+          <option value="mushbooh">⚠️ Mushbooh</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Skor</label>
+        <input type="number" id="ep-score" min="0" max="100">
+      </div>
+    </div>
+    <div class="form-grid full" style="margin-top:14px;">
+      <div class="form-field">
+        <label>Uyarı</label>
+        <input type="text" id="ep-warning">
+      </div>
+      <div class="form-field">
+        <label>Kaynak</label>
+        <input type="text" id="ep-source">
+      </div>
+      <div class="form-field">
+        <label>Üretici Açıklaması</label>
+        <textarea id="ep-statement"></textarea>
+      </div>
+    </div>
+    <div class="form-actions" style="margin-top:20px;">
+      <button class="btn btn-primary" onclick="saveEdit()">💾 Kaydet</button>
+      <button class="btn btn-danger"  onclick="deactivateProduct()">🚫 Pasife Al</button>
+      <button class="btn btn-ghost"   onclick="closeEditModal()">İptal</button>
+    </div>
+    <p id="editStatus" style="font-size:13px;color:var(--muted);margin-top:10px;"></p>
+  </div>
+</div>
+
+<!-- ── Toast ─────────────────────────────────────────────────────── -->
+<div id="toast" class="toast"></div>
+
+<!-- ── Firebase SDK ──────────────────────────────────────────────── -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<!-- ── Admin JS ──────────────────────────────────────────────────── -->
+<script>
+/* ============================================================
+   BarcodeHalal — admin.js (inline)
+   Bağımlılıklar: firebase SDK (yukarıda), products.js yok.
+   Sadece bu sayfaya özel kod. app.js'e dokunmaz.
+============================================================ */
+
+// ── Config (firebase.js ile AYNI config'i buraya da gir) ─────────
+// TODO: firebase.js'teki FIREBASE_CONFIG ile senkronize et.
+const ADMIN_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyA2-Fjh4TcKwlJsG7U-grgGFrGg-hD1fa8",
+  authDomain: "barcodehalal.firebaseapp.com",
+  projectId: "barcodehalal",
+  storageBucket: "barcodehalal.firebasestorage.app",
+  messagingSenderId: "898960924803",
+  appId: "1:898960924803:web:52507cbabf56d427953bb6"
+};
+
+// ── Firebase başlatma ─────────────────────────────────────────────
+const _configured = ADMIN_FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY';
+let   _auth = null, _db = null;
+
+if (_configured) {
+  try {
+    const app = firebase.apps.length
+      ? firebase.app()
+      : firebase.initializeApp(ADMIN_FIREBASE_CONFIG);
+    _auth = firebase.auth();
+    _db   = firebase.firestore();
+  } catch (e) {
+    console.error('[Admin] Firebase başlatılamadı:', e);
+  }
+}
+
+// ── Yerel veritabanı (products.js yüklü değil, direkt fetch ile çöz) ─
+// Admin sayfası products.js'e bağımlı değil — Firestore'dan okuyacak.
+// Şimdilik demo amaçlı boş olarak başlıyor.
+let _localDB = {};   // { barcode: {...} }
+
+// ── State ─────────────────────────────────────────────────────────
+let _currentUser  = null;
+let _editBarcode  = null;
+
+// ── Auth listener ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+  // Firebase uyarısı
+  if (!_configured) {
+    document.getElementById('fbWarningLogin').classList.add('show');
+    document.getElementById('fbWarningMain').classList.add('show');
+  }
+
+  if (!_auth) {
+    // Firebase yok: giriş ekranı kalsın, butonu devre dışı bırak
+    const loginBtn = document.querySelector('#loginScreen .btn-primary');
+    if (loginBtn) loginBtn.disabled = true;
+    return;
+  }
+
+  _auth.onAuthStateChanged(function (user) {
+    if (user) {
+      _currentUser = user;
+      showAdminApp(user);
+    } else {
+      _currentUser = null;
+      showLoginScreen();
+    }
+  });
+});
+
+// ── Login / logout ─────────────────────────────────────────────────
+function doSignIn() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.classList.remove('show');
+
+  if (!email || !pass) {
+    errEl.textContent = 'E-posta ve şifre boş bırakılamaz.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (!_auth) {
+    errEl.textContent = 'Firebase bağlantısı yok. Config\'i doldurun.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  _auth.signInWithEmailAndPassword(email, pass)
+    .then(function () { errEl.classList.remove('show'); })
+    .catch(function (e) {
+      errEl.textContent =
+        e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password'
+          ? 'Hatalı e-posta veya şifre.'
+          : e.code === 'auth/too-many-requests'
+          ? 'Çok fazla başarısız deneme. Lütfen bekleyin.'
+          : e.message;
+      errEl.classList.add('show');
+    });
+}
+
+function doSignOut() {
+  if (_auth) _auth.signOut();
+}
+
+// Enter ile login
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) {
+    doSignIn();
+  }
+});
+
+// ── Ekran geçişleri ────────────────────────────────────────────────
+function showLoginScreen() {
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('adminApp').style.display = 'none';
+}
+
+function showAdminApp(user) {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('adminApp').style.display = 'block';
+  document.getElementById('adminEmail').textContent = user.email || '';
+  loadDashboard();
+  loadReports();
+}
+
+// ── Sayfa navigasyonu ──────────────────────────────────────────────
+function showPage(pageId, btn) {
+  ['dashboard','products','add-product','reports'].forEach(function (id) {
+    document.getElementById('page-' + id).style.display = id === pageId ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(function (el) {
+    el.classList.toggle('active', el.dataset.page === pageId);
+  });
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────
+function loadDashboard() {
+  // Firestore'dan ürün sayılarını çek
+  if (_db) {
+    _db.collection('products').get()
+      .then(function (snap) {
+        const docs = snap.docs.map(function (d) { return d.data(); });
+        const halal    = docs.filter(function (d) { return d.verdict === 'halal'; }).length;
+        const haram    = docs.filter(function (d) { return d.verdict === 'haram'; }).length;
+        const mushbooh = docs.filter(function (d) { return d.verdict === 'mushbooh'; }).length;
+        document.getElementById('statTotal').textContent = docs.length;
+        document.getElementById('statHalal').textContent = halal;
+        document.getElementById('statHaram').textContent = haram;
+        document.getElementById('sourceBreakdown').innerHTML =
+          '<b>' + halal + '</b> Helal &nbsp;·&nbsp; ' +
+          '<b>' + haram + '</b> Haram &nbsp;·&nbsp; ' +
+          '<b>' + mushbooh + '</b> Şüpheli &nbsp;·&nbsp; ' +
+          '<b>' + docs.length + '</b> Firestore toplam';
+      })
+      .catch(function () {
+        document.getElementById('sourceBreakdown').textContent = 'Firestore okunamadı.';
+      });
+  } else {
+    document.getElementById('statTotal').textContent = '—';
+    document.getElementById('statHalal').textContent = '—';
+    document.getElementById('statHaram').textContent = '—';
+    document.getElementById('sourceBreakdown').textContent =
+      'Firebase bağlantısı yok. Yerel products.js verisi bu sayfada gösterilmiyor.';
+  }
+
+  // Sistem durumu
+  document.getElementById('systemStatus').innerHTML =
+    '<span style="color:' + (_configured ? 'var(--g3)' : 'var(--amber)') + ';">' +
+    (_configured ? '🟢' : '🟡') + ' Firebase: ' +
+    (_configured ? 'Yapılandırıldı' : 'Config bekleniyor') + '</span><br>' +
+    '📦 Yerel products.js: Ana kullanıcı uygulamasında aktif<br>' +
+    '🔐 Oturum: ' + (_currentUser ? _currentUser.email : '—');
+}
+
+// ── Ürün Arama ─────────────────────────────────────────────────────
+function searchProducts(query) {
+  const q = (query || '').trim().toLowerCase();
+  const el = document.getElementById('searchResults');
+  if (!q) { el.innerHTML = ''; return; }
+
+  if (!_db) {
+    el.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:10px 0;">' +
+      'Arama için Firebase bağlantısı gereklidir.</p>';
+    return;
+  }
+
+  el.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:10px 0;">Aranıyor…</p>';
+
+  // Firestore'da barkod veya ürün adı ile ara
+  // Tam metin arama için ya barcode exact match ya da prefix query
+  const isNumeric = /^\d+$/.test(q);
+  const queries = [];
+
+  if (isNumeric) {
+    // Barkod ile arama
+    queries.push(
+      _db.collection('products')
+         .where('barcode', '==', q)
+         .limit(20)
+         .get()
+    );
+  } else {
+    // Ürün adı prefix araması (Firestore sınırlı)
+    queries.push(
+      _db.collection('products')
+         .orderBy('product')
+         .startAt(q)
+         .endAt(q + '\uf8ff')
+         .limit(20)
+         .get()
+    );
+  }
+
+  Promise.all(queries)
+    .then(function (snaps) {
+      const seen = {};
+      const results = [];
+      snaps.forEach(function (snap) {
+        snap.docs.forEach(function (doc) {
+          if (!seen[doc.id]) {
+            seen[doc.id] = true;
+            results.push(Object.assign({ _id: doc.id }, doc.data()));
+          }
+        });
+      });
+      renderSearchResults(results, q);
+    })
+    .catch(function (err) {
+      el.innerHTML = '<p style="color:var(--red);font-size:13px;">' + err.message + '</p>';
+    });
+}
+
+function renderSearchResults(results, query) {
+  const el = document.getElementById('searchResults');
+  if (!results.length) {
+    el.innerHTML = '<div class="empty"><div class="icon">🔍</div><p>"' + query + '" için sonuç bulunamadı.</p></div>';
+    return;
+  }
+
+  const rows = results.map(function (p) {
+    const vclass = p.verdict === 'halal' ? 'halal' : p.verdict === 'haram' ? 'haram' : p.verdict === 'mushbooh' ? 'mushbooh' : 'passive';
+    const passive = p.passive ? '<span class="vbadge passive" style="margin-left:6px;">Pasif</span>' : '';
+    return '<tr>' +
+      '<td class="td-barcode">' + (p.barcode || p._id || '—') + '</td>' +
+      '<td class="td-product">' + (p.product || p.product_name || '—') + passive +
+        '<small>' + (p.brand || '') + (p.store ? ' · ' + p.store : '') + '</small></td>' +
+      '<td><span class="vbadge ' + vclass + '">' + (p.verdict || '—') + '</span></td>' +
+      '<td style="text-align:center;">' + (p.score || '—') + '</td>' +
+      '<td><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" ' +
+        'onclick="openEdit(' + JSON.stringify(p).replace(/"/g, '&quot;') + ')">✏️ Düzenle</button></td>' +
+      '</tr>';
+  }).join('');
+
+  el.innerHTML = '<div class="card"><div class="table-wrap"><table>' +
+    '<thead><tr><th>Barkod</th><th>Ürün</th><th>Karar</th><th>Skor</th><th></th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div></div>';
+}
+
+// ── Ürün Ekle ──────────────────────────────────────────────────────
+function addProduct() {
+  const statusEl = document.getElementById('addProductStatus');
+  const barcode  = document.getElementById('np-barcode').value.trim();
+  const product  = document.getElementById('np-product').value.trim();
+
+  if (!barcode || !product) {
+    statusEl.textContent = '❌ Barkod ve Ürün Adı zorunludur.';
+    statusEl.style.color = 'var(--red)';
+    return;
+  }
+  if (!_db) {
+    statusEl.textContent = '❌ Firebase bağlantısı yok.';
+    statusEl.style.color = 'var(--red)';
+    return;
+  }
+
+  const certsRaw = document.getElementById('np-certs').value.trim();
+  const data = {
+    barcode:          barcode,
+    product:          product,
+    brand:            document.getElementById('np-brand').value.trim(),
+    store:            document.getElementById('np-store').value.trim(),
+    verdict:          document.getElementById('np-verdict').value,
+    score:            parseInt(document.getElementById('np-score').value) || 0,
+    logo:             document.getElementById('np-logo').value.trim() || '🛒',
+    category:         document.getElementById('np-category').value,
+    certifications:   certsRaw ? certsRaw.split('\n').map(function (s) { return s.trim(); }).filter(Boolean) : [],
+    companyStatement: document.getElementById('np-statement').value.trim(),
+    source:           document.getElementById('np-source').value.trim(),
+    warning:          document.getElementById('np-warning').value.trim(),
+    passive:          false,
+    createdAt:        firebase.firestore.FieldValue.serverTimestamp(),
+    createdBy:        _currentUser ? _currentUser.email : 'admin',
+  };
+
+  statusEl.textContent = '⏳ Kaydediliyor…';
+  statusEl.style.color = 'var(--muted)';
+
+  _db.collection('products').doc(barcode).set(data)
+    .then(function () {
+      statusEl.textContent = '✅ Ürün başarıyla eklendi.';
+      statusEl.style.color = 'var(--g3)';
+      showToast('Ürün eklendi: ' + product);
+      clearProductForm();
+    })
+    .catch(function (err) {
+      statusEl.textContent = '❌ ' + err.message;
+      statusEl.style.color = 'var(--red)';
+    });
+}
+
+function clearProductForm() {
+  ['np-barcode','np-product','np-brand','np-store','np-score','np-logo',
+   'np-certs','np-statement','np-source','np-warning'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('np-verdict').value   = 'halal';
+  document.getElementById('np-category').value  = 'Food';
+  document.getElementById('addProductStatus').textContent = '';
+}
+
+// ── Ürün Düzenle modal ─────────────────────────────────────────────
+function openEdit(product) {
+  _editBarcode = product._id || product.barcode || '';
+  document.getElementById('ep-barcode').value   = _editBarcode;
+  document.getElementById('ep-product').value   = product.product || '';
+  document.getElementById('ep-brand').value     = product.brand   || '';
+  document.getElementById('ep-store').value     = product.store   || '';
+  document.getElementById('ep-verdict').value   = product.verdict || 'halal';
+  document.getElementById('ep-score').value     = product.score   || '';
+  document.getElementById('ep-warning').value   = product.warning || '';
+  document.getElementById('ep-source').value    = product.source  || '';
+  document.getElementById('ep-statement').value = product.companyStatement || '';
+  document.getElementById('editStatus').textContent = '';
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  _editBarcode = null;
+}
+
+function saveEdit() {
+  if (!_db || !_editBarcode) {
+    document.getElementById('editStatus').textContent = '❌ Firebase bağlantısı yok.';
+    return;
+  }
+  const data = {
+    product:          document.getElementById('ep-product').value.trim(),
+    brand:            document.getElementById('ep-brand').value.trim(),
+    store:            document.getElementById('ep-store').value.trim(),
+    verdict:          document.getElementById('ep-verdict').value,
+    score:            parseInt(document.getElementById('ep-score').value) || 0,
+    warning:          document.getElementById('ep-warning').value.trim(),
+    source:           document.getElementById('ep-source').value.trim(),
+    companyStatement: document.getElementById('ep-statement').value.trim(),
+    updatedAt:        firebase.firestore.FieldValue.serverTimestamp(),
+    updatedBy:        _currentUser ? _currentUser.email : 'admin',
+  };
+  document.getElementById('editStatus').textContent = '⏳ Kaydediliyor…';
+  _db.collection('products').doc(_editBarcode).update(data)
+    .then(function () {
+      showToast('Ürün güncellendi');
+      closeEditModal();
+    })
+    .catch(function (err) {
+      document.getElementById('editStatus').textContent = '❌ ' + err.message;
+    });
+}
+
+function deactivateProduct() {
+  if (!_db || !_editBarcode) return;
+  if (!confirm('Bu ürünü pasife almak istediğinizden emin misiniz?')) return;
+  _db.collection('products').doc(_editBarcode).update({
+    passive:   true,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedBy: _currentUser ? _currentUser.email : 'admin',
+  })
+    .then(function () {
+      showToast('Ürün pasife alındı');
+      closeEditModal();
+    })
+    .catch(function (err) {
+      document.getElementById('editStatus').textContent = '❌ ' + err.message;
+    });
+}
+
+// ── Bildirimler ────────────────────────────────────────────────────
+function loadReports() {
+  if (!_db) return;
+  _db.collection('reports')
+    .orderBy('createdAt', 'desc')
+    .limit(50)
+    .get()
+    .then(function (snap) {
+      const badge = document.getElementById('reportBadge');
+      badge.textContent = snap.size;
+      if (!snap.size) return;
+
+      const html = snap.docs.map(function (doc) {
+        const r         = doc.data();
+        const docId     = doc.id;
+        const issueType = r.issueType  || r.reportType || '—';
+        const userNote  = r.userNote   || r.notes      || '—';
+        const status    = r.status     || 'pending';
+        const time      = r.createdAt
+          ? new Date(r.createdAt.toMillis()).toLocaleString('tr-TR')
+          : '—';
+
+        // Status badge
+        const statusLabel = { pending:'⏳ Bekliyor', reviewed:'✅ İncelendi', rejected:'❌ Reddedildi' }[status] || status;
+        const statusBadge = '<span class="vbadge ' + status + '">' + statusLabel + '</span>';
+
+        // Butonlar — sadece pending'de göster
+        // data-* kullanılıyor: JSON.stringify çift tırnağı onclick attribute'unu bozmasın
+        const safeBarcode = (r.barcode     || '').replace(/'/g, '&#39;');
+        const safeName    = (r.productName || '').replace(/'/g, '&#39;');
+        const safeBrand   = (r.brand       || '').replace(/'/g, '&#39;');
+        const actionBtns = status === 'pending'
+          ? '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">' +
+              '<button class="btn btn-ghost"   style="padding:6px 12px;font-size:12px;" onclick="reviewReport(\'' + docId + '\')">✅ İncelendi</button>' +
+              '<button class="btn btn-danger"  style="padding:6px 12px;font-size:12px;" onclick="rejectReport(\'' + docId + '\')">❌ Reddet</button>' +
+              '<button class="btn btn-primary" style="padding:6px 12px;font-size:12px;"' +
+                ' data-docid="' + docId + '"' +
+                ' data-barcode="' + safeBarcode + '"' +
+                ' data-product="' + safeName + '"' +
+                ' data-brand="'   + safeBrand  + '"' +
+                ' onclick="convertToProduct(this)">➕ Ürüne Dönüştür</button>' +
+            '</div>'
+          : '';
+
+        return '<div class="notif-item">' +
+          '<div class="notif-header">' +
+            '<span class="notif-barcode">📦 ' + (r.barcode || '—') + '</span>' +
+            '<span class="notif-time">' + time + '</span>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+            '<span class="notif-type">' + issueType + '</span>' +
+            statusBadge +
+          '</div>' +
+          '<div class="notif-body">' + userNote + '</div>' +
+          '<div class="notif-meta">' +
+            (r.productName    ? '<span class="notif-tag">📝 ' + r.productName + '</span>' : '') +
+            (r.correctVerdict ? '<span class="notif-tag">✅ Doğru: ' + r.correctVerdict + '</span>' : '') +
+            (r.email          ? '<span class="notif-tag">✉️ ' + r.email + '</span>' : '') +
+          '</div>' +
+          actionBtns +
+          '</div>';
+      }).join('');
+
+      document.getElementById('reportsList').innerHTML = html;
+    })
+    .catch(function () {});
+}
+
+// ── Toast ──────────────────────────────────────────────────────────
+// ── Bildirim aksiyonları ───────────────────────────────────────────
+function reviewReport(docId) {
+  if (!_db) return;
+  _db.collection('reports').doc(docId).update({
+    status:     'reviewed',
+    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    reviewedBy: _currentUser ? _currentUser.email : 'admin',
+  })
+    .then(function () { showToast('Bildirim incelendi olarak işaretlendi'); loadReports(); })
+    .catch(function (err) { showToast('Hata: ' + err.message); });
+}
+
+function rejectReport(docId) {
+  if (!_db) return;
+  _db.collection('reports').doc(docId).update({
+    status:     'rejected',
+    rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    rejectedBy: _currentUser ? _currentUser.email : 'admin',
+  })
+    .then(function () { showToast('Bildirim reddedildi'); loadReports(); })
+    .catch(function (err) { showToast('Hata: ' + err.message); });
+}
+
+function convertToProduct(btn) {
+  var barcode     = btn.getAttribute('data-barcode')  || '';
+  var productName = btn.getAttribute('data-product')  || '';
+  var brand       = btn.getAttribute('data-brand')    || '';
+  // Yeni Ürün Ekle sayfasını aç ve alanları doldur
+  showPage('add-product', document.querySelector('[data-page="add-product"]'));
+  if (barcode)     document.getElementById('np-barcode').value = barcode;
+  if (productName) document.getElementById('np-product').value = productName;
+  if (brand)       document.getElementById('np-brand').value   = brand;
+  showToast('Alanlar dolduruldu — formu tamamlayıp kaydedin');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function () { t.classList.remove('show'); }, 2800);
+}
+</script>
+</body>
+</html>
