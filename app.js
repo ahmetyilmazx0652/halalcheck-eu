@@ -1437,6 +1437,15 @@ function renderBrandOnly(barcode, b) {
     ? `<div style="margin:10px 0;background:rgba(251,191,36,0.1);border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:10px 12px;font-size:12px;color:#92400e;">⚠️ ${b.warning}</div>`
     : '';
 
+  const companyHTML = (b.companyStatement || b.source)
+    ? `<div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #4ade80;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#166534;margin-bottom:8px;">📧 Company Statement (Verified)</div>
+      <div style="font-size:13px;font-weight:600;color:#14532d;margin-bottom:6px;">${b.logo} ${b.brand}</div>
+      ${b.companyStatement ? `<div style="font-size:12px;color:#166534;line-height:1.6;margin-bottom:8px;font-style:italic;">"${b.companyStatement}"</div>` : ''}
+      ${b.source ? `<div style="font-size:11px;color:#15803d;font-weight:600;">📌 Source: ${b.source}</div>` : ''}
+    </div>`
+    : '';
+
   document.getElementById('result').innerHTML = `
     <div class="product-card">
       <div class="product-row">
@@ -1472,12 +1481,7 @@ function renderBrandOnly(barcode, b) {
 
     ${warningHTML}
 
-    <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #4ade80;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#166534;margin-bottom:8px;">📧 Company Statement (Verified)</div>
-      <div style="font-size:13px;font-weight:600;color:#14532d;margin-bottom:6px;">${b.logo} ${b.brand}</div>
-      <div style="font-size:12px;color:#166534;line-height:1.6;margin-bottom:8px;font-style:italic;">"${b.companyStatement}"</div>
-      <div style="font-size:11px;color:#15803d;font-weight:600;">📌 Source: ${b.source}</div>
-    </div>
+    ${companyHTML}
 
     <div class="disclaimer">${t('disclaimerText')}</div>
     <button class="report-btn" onclick="openReport('${barcode}', '${b.product}', '${b.verdict}')">
