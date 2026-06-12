@@ -17,6 +17,11 @@
 //    - window.FB_AUTH → Auth        (admin paneli girişi)
 // ============================================================
 
+// ── FB_loadProducts ────────────────────────────────────────
+// NOT: Bu fonksiyon artık burada tanımlanmıyor. Tek kaynak
+// index_new.html içindeki firebase.js/app.js arası inline
+// bridge script'tir. Bkz. index_new.html.
+
 (function () {
   'use strict';
 
@@ -24,12 +29,12 @@
   // TODO: Aşağıdaki değerleri Firebase Console → Proje Ayarları →
   //       "Web uygulaması ekle" bölümünden alıp doldurun.
   const FIREBASE_CONFIG = {
-  apiKey:            'AIzaSyA2-Fjh4TcWlJsG7U-grgGFrGg-hD1fa8',
-  authDomain:        'barcodehalal.firebaseapp.com',
-  projectId:         'barcodehalal',
-  storageBucket:     'barcodehalal.firebasestorage.app',
-  messagingSenderId: '898960924803',
-  appId:             '1:898960924803:web:52507cbabf56d427953bb6',
+  apiKey: "AIzaSyA2-Fjh4TcWlJsG7U-grgGFrGg-hD1fa8",
+  authDomain: "barcodehalal.firebaseapp.com",
+  projectId: "barcodehalal",
+  storageBucket: "barcodehalal.firebasestorage.app",
+  messagingSenderId: "898960924803",
+  appId: "1:898960924803:web:52507cbabf56d427953bb6"
 };
 
   // Config doldurulmamışsa Firebase'i yükleme — konsola bilgi ver
@@ -132,22 +137,31 @@
       };
 
       /**
+       * Firestore 'products' koleksiyonundaki ürünleri tek seferde çeker.
+       * Pasif (passive:true) ürünler hariç tutulur.
+       * Hata olursa boş obje döner — app.js bu durumda yalnızca
+       * products.js verisiyle devam eder.
+       * @returns {Promise<Object>} { [barcode]: productData }
+       */
+      // FB_loadProducts buradan kaldırıldı — tek kaynak index_new.html
+      // içindeki inline bridge script'tir.
+
+      /**
        * Ürün bildirimi — submitReport() başarıyla tamamlandığında çağrılacak.
        * @param {Object} reportData  FormData içeriği (plain object olarak)
        */
       window.FB_saveReport = function (reportData) {
-  if (typeof db === 'undefined' || !window.FB_READY) {
-    return Promise.reject(new Error('Firebase/Firestore hazır değil.'));
-  }
-
-  return db.collection('reports').add(
-    Object.assign({}, reportData, {
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      status: reportData.status || 'pending',
-      source: reportData.source || 'user_report',
-    })
-  );
-};
+        if (typeof db === 'undefined' || !window.FB_READY) {
+          return Promise.reject(new Error('Firebase/Firestore hazır değil.'));
+        }
+        return db.collection('reports').add(
+          Object.assign({}, reportData, {
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status:    reportData.status || 'pending',
+            source:    reportData.source || 'user_report',
+          })
+        );
+      };
 
       /**
        * Bildirim fotoğrafı yükle — Storage'a.

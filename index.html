@@ -461,6 +461,44 @@ body {
 </style>
 <script src="products.js"></script>
 <script src="firebase.js"></script>
+<script>
+window.FB_loadProducts = async function () {
+  try {
+    console.log('[BarcodeHalal] Bridge Firestore products okunuyor...');
+
+    // Firebase SDK ve FB_READY hazır olana kadar kısa süre bekle (max 5s)
+    var tries = 0;
+    while (
+      (!window.firebase || !firebase.firestore || window.FB_READY !== true) &&
+      tries < 50
+    ) {
+      await new Promise(function (resolve) { setTimeout(resolve, 100); });
+      tries++;
+    }
+
+    if (!window.firebase || !firebase.firestore) {
+      console.warn('[BarcodeHalal] Bridge: Firebase hazır değil, products atlandı.');
+      return {};
+    }
+
+    var snapshot = await firebase.firestore().collection('products').get();
+    var out = {};
+    snapshot.forEach(function (doc) {
+      var data = doc.data() || {};
+      // Test aşaması: passive olanlar da dahil — hepsi getiriliyor.
+      var key = data.barcode || doc.id;
+      if (!key) return;
+      out[String(key)] = data;
+    });
+
+    console.log('[BarcodeHalal] Bridge Firestore products geldi:', Object.keys(out).length);
+    return out;
+  } catch (err) {
+    console.warn('[BarcodeHalal] Bridge Firestore products hatası:', err);
+    return {};
+  }
+};
+</script>
 <script src="app.js"></script>
 </head>
 <body>

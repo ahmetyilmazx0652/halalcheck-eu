@@ -537,10 +537,8 @@ function setLang(l) {
   const isRTL = l === 'ar';
   document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
   if (document.body) {
-  document.body.style.fontFamily = isRTL
-    ? "'Cairo', 'Outfit', sans-serif"
-    : "'Outfit', sans-serif";
-}
+    document.body.style.fontFamily = isRTL ? "'Cairo', 'Outfit', sans-serif" : "'Outfit', sans-serif";
+  }
   // Load Arabic font if needed
   if (isRTL && !document.getElementById('arabic-font')) {
     const link = document.createElement('link');
@@ -2638,8 +2636,6 @@ function showEmailError(msg) {
   document.getElementById('emailResult').style.display = 'block';
 }
 
-
-
 // ── products.js verilerini BRAND_DB'ye merge et ─────────────────────────────
 // products.js'deki window.EXTRA_DB_E1 ve window.EXTRA_DB_E2 objeleri
 // DOMContentLoaded anında BRAND_DB ile birleştirilir.
@@ -2651,27 +2647,57 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   });
   console.log('BarcodeHalal:', Object.keys(BRAND_DB).length, 'urun yuklendi');
-});
-var emailModal = document.getElementById('emailModal');
-if (emailModal) {
-  emailModal.addEventListener('click', function(e) {
+
+  // BRAND_DB'yi global olarak da eriştirilebilir kıl (debug/doğrulama için)
+  window.BRAND_DB = BRAND_DB;
+
+  // Firestore 'products' koleksiyonu — varsa admin ürünleri öncelikli olarak
+  // BRAND_DB'ye eklenir. Firebase yoksa veya hata olursa sessizce atlanır.
+  // _mergeFirestoreProducts hem DOMContentLoaded hem window.load'da çağrılır:
+  // window.FB_loadProducts birden fazla yerde (stub/bridge/gerçek impl)
+  // farklı zamanlarda tanımlanabildiği için tek çağrı yetersiz kalabilir.
+  function _mergeFirestoreProducts() {
+    if (typeof window.FB_loadProducts !== 'function') return;
+    window.FB_loadProducts().then(function (fsProducts) {
+      if (!fsProducts || typeof fsProducts !== 'object') return;
+      var keys = Object.keys(fsProducts);
+      var n = keys.length;
+      if (n === 0) return;
+
+      keys.forEach(function (rawKey) {
+        var key = String(rawKey).trim();
+        BRAND_DB[key] = fsProducts[rawKey];
+      });
+
+      console.log('[BarcodeHalal] Firestore ürünleri eklendi:', n);
+
+      // Doğrulama — ilk anahtarın gerçekten BRAND_DB'de olup olmadığını kontrol et
+      var sampleKey = String(keys[0]).trim();
+      console.log(
+        '[BarcodeHalal] BRAND_DB doğrulama — ' + sampleKey + ':',
+        BRAND_DB[sampleKey] ? 'YAZILDI ✓' : 'YAZILAMADI ✗',
+        '| toplam BRAND_DB kaydı:', Object.keys(BRAND_DB).length
+      );
+    }).catch(function (err) {
+      console.warn('[BarcodeHalal] Firestore products merge hatası:', err);
+    });
+  }
+
+  _mergeFirestoreProducts();
+  window.addEventListener('load', _mergeFirestoreProducts);
+
+  document.getElementById('emailModal').addEventListener('click', function(e) {
     if (e.target === this) closeEmailModal();
   });
-}
 
-var photoModal = document.getElementById('photoModal');
-if (photoModal) {
-  photoModal.addEventListener('click', function(e) {
+  document.getElementById('photoModal').addEventListener('click', function(e) {
     if (e.target === this) closePhotoModal();
   });
-}
 
-var cameraModal = document.getElementById('cameraModal');
-if (cameraModal) {
-  cameraModal.addEventListener('click', function(e) {
+  document.getElementById('cameraModal').addEventListener('click', function(e) {
     if (e.target === this) closeCamera();
   });
-}
+});
 function openReport(barcode, productName, currentVerdict) {
   document.getElementById('reportBarcode').value = barcode || '';
   document.getElementById('reportProductName').value = productName || '';
@@ -2707,45 +2733,58 @@ function previewReportPhotos(input) {
 
 async function submitReport(e) {
   e.preventDefault();
-
-  const btn = document.getElementById('reportSubmitBtn');
-  btn.disabled = true;
+  const btn  = document.getElementById('reportSubmitBtn');
+  const form = document.getElementById('reportForm');
+  btn.disabled    = true;
   btn.textContent = '⏳ Gönderiliyor...';
 
-  const form = document.getElementById('reportForm');
-  const data = new FormData(form);
-
-  const reportData = {
-    barcode: data.get('barcode') || '',
-    productName: data.get('productName') || '',
-    brand: data.get('brand') || '',
-    issueType: data.get('issueType') || '',
-    userNote: data.get('userNote') || '',
-    photos: [],
-    status: 'pending',
-    source: 'user_report'
-  };
-
-  try {
-    if (window.FB_READY && typeof window.FB_saveReport === 'function') {
-      await window.FB_saveReport(reportData);
-    } else {
-      const res = await fetch('https://formspree.io/f/xykvbqzy', {
-        method: 'POST',
-        body: data,
-        headers: { 'Accept': 'application/json' }
-      });
-      if (!res.ok) throw new Error();
-    }
-
+  function _onSuccess() {
     document.getElementById('reportFormContent').style.display = 'none';
-    document.getElementById('reportSuccess').style.display = 'block';
+    document.getElementById('reportSuccess').style.display    = 'block';
+  }
+  function _onError(msg) {
+    btn.disabled    = false;
+    btn.textContent = '📤 Bildirimi Gönder';
+    alert(msg || 'Gönderme hatası. Lütfen tekrar deneyin.');
+  }
 
+  // ── Yol 1: Firebase hazırsa Firestore'a yaz ──────────────
+  if (window.FB_READY && typeof window.FB_saveReport === 'function') {
+    const fd = new FormData(form);
+    const reportData = {
+      barcode:     fd.get('barcode')      || '',
+      productName: fd.get('productName')  || '',
+      brand:       fd.get('brand')        || '',
+      issueType:   fd.get('reportType')   || '',
+      userNote:    fd.get('notes')        || '',
+      photos:      [],
+      status:      'pending',
+      source:      'user_report',
+    };
+    try {
+      await window.FB_saveReport(reportData);
+      _onSuccess();
+    } catch (err) {
+      console.error('[BarcodeHalal] Firestore rapor hatası:', err);
+      _onError('Rapor gönderilemedi. Bağlantınızı kontrol edip tekrar deneyin.');
+    }
+    return;
+  }
+
+  // ── Yol 2: Firebase yoksa Formspree yedek ────────────────
+  const data = new FormData(form);
+  try {
+    const res = await fetch('https://formspree.io/f/xykvbqzy', {
+      method: 'POST', body: data, headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      _onSuccess();
+    } else {
+      throw new Error('Formspree ' + res.status);
+    }
   } catch (err) {
-    btn.disabled = false;
-    btn.textContent = '📩 Bildirimi Gönder';
-    alert('Gönderme hatası. Lütfen tekrar deneyin.');
-    console.error('[BarcodeHalal] Rapor gönderme hatası:', err);
+    console.error('[BarcodeHalal] Formspree hatası:', err);
+    _onError('Gönderme hatası. Lütfen tekrar deneyin.');
   }
 }
 setLang("tr");
